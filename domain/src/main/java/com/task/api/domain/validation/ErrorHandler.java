@@ -24,6 +24,23 @@ public class ErrorHandler {
         return this;
     }
 
+    public ErrorHandler addErrors(ErrorHandler handler) {
+        errors.putAll(handler.getErrors());
+        return this;
+    }
+
+    public ErrorHandler changeCause(String cause, String newCause) {
+        if (errors.containsKey(cause)) {
+            if (!errors.containsKey(newCause))
+                errors.put(newCause, new ArrayList<>());
+
+            errors.get(newCause).addAll(errors.get(cause));
+            errors.remove(cause);
+        }
+
+        return this;
+    }
+
     public boolean hasError() {
         return !errors.isEmpty();
     }
