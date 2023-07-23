@@ -4,13 +4,11 @@ import com.task.api.domain.valueobjects.Identifier;
 
 import java.util.Objects;
 
-import static java.util.Objects.requireNonNull;
-
 public abstract class Entity {
     private final Identifier id;
 
     protected Entity(Identifier id) {
-        this.id = requireNonNull(id);
+        this.id = id;
     }
 
     public Identifier getId() {
@@ -24,6 +22,8 @@ public abstract class Entity {
         Entity entity = (Entity) o;
         return Objects.equals(getId(), entity.getId());
     }
+
+    protected abstract Entity validate();
 
     @Override
     public int hashCode() {

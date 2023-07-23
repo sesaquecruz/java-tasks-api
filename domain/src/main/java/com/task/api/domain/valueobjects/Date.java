@@ -2,45 +2,42 @@ package com.task.api.domain.valueobjects;
 
 import com.task.api.domain.ValueObject;
 import com.task.api.domain.exceptions.ValidationException;
+import com.task.api.domain.utils.TimeUtils;
 import com.task.api.domain.validation.ErrorHandler;
 
+import java.time.Instant;
 import java.util.Objects;
-import java.util.UUID;
 
-public class Identifier extends ValueObject {
-    private static final String CAUSE_ID = "id";
-    private final UUID value;
+public class Date extends ValueObject {
+    private static final String CAUSE_DATE = "date";
+    private final Instant value;
 
-    private Identifier(UUID value) {
+    private Date(Instant value) {
         this.value = value;
     }
 
-    public static Identifier with(String value) {
+    public static Date with(String value) {
         var handler = ErrorHandler.create();
 
         if (value == null) {
-            handler.addError(CAUSE_ID, "must not be null");
+            handler.addError(CAUSE_DATE, "must not be null");
             throw ValidationException.with(handler);
         }
 
         if (value.isBlank()) {
-            handler.addError(CAUSE_ID, "must not be blank");
+            handler.addError(CAUSE_DATE, "must not be blank");
             throw ValidationException.with(handler);
         }
 
-        try {
-            return new Identifier(UUID.fromString(value));
-        } catch (IllegalArgumentException ex) {
-            handler.addError(CAUSE_ID, "is invalid");
+        if (!TimeUtils.isValidInstant(value)) {
+            handler.addError(CAUSE_DATE, "is invalid");
             throw ValidationException.with(handler);
         }
+
+        return new Date(Instant.parse(value));
     }
 
-    public static Identifier unique() {
-        return Identifier.with(UUID.randomUUID().toString());
-    }
-
-    public UUID getValue() {
+    public Instant getValue() {
         return value;
     }
 
@@ -48,8 +45,8 @@ public class Identifier extends ValueObject {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Identifier that = (Identifier) o;
-        return Objects.equals(getValue(), that.getValue());
+        Date date = (Date) o;
+        return Objects.equals(getValue(), date.getValue());
     }
 
     @Override
