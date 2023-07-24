@@ -7,7 +7,7 @@ import com.task.api.domain.validation.ErrorHandler;
 import java.util.Objects;
 
 public class Priority extends ValueObject {
-    private enum Value { LOW, NORMAL, HIGH }
+    public enum Value { LOW, NORMAL, HIGH }
 
     private static final String CAUSE_PRIORITY = "priority";
     private final Value value;

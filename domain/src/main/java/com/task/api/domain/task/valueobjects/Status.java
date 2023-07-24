@@ -7,7 +7,7 @@ import com.task.api.domain.validation.ErrorHandler;
 import java.util.Objects;
 
 public class Status extends ValueObject {
-    private enum Value { PENDING, COMPLETED, CANCELLED }
+    public enum Value { PENDING, COMPLETED, CANCELLED }
 
     private static final String CAUSE_STATUS = "status";
     private final Value value;

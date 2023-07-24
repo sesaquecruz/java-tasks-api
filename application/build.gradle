@@ -15,6 +15,6 @@ dependencies {
     testImplementation 'org.mockito:mockito-junit-jupiter:5.4.0'
 }
 
-test {
+tasks.named('test') {
     useJUnitPlatform()
 }

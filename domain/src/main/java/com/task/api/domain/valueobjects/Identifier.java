@@ -40,8 +40,8 @@ public class Identifier extends ValueObject {
         return Identifier.with(UUID.randomUUID().toString());
     }
 
-    public UUID getValue() {
-        return value;
+    public String getValue() {
+        return value.toString();
     }
 
     @Override

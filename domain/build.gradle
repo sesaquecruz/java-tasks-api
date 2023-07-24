@@ -12,6 +12,6 @@ dependencies {
     testImplementation 'org.assertj:assertj-core:3.24.2'
 }
 
-test {
+tasks.named('test') {
     useJUnitPlatform()
 }

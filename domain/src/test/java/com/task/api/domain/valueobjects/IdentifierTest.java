@@ -20,8 +20,8 @@ public class IdentifierTest {
 
     @Test
     public void shouldCreateAnIdentifierWhenValueIsAnUUID() {
-        var value = UUID.randomUUID();
-        var id = Identifier.with(value.toString());
+        var value = UUID.randomUUID().toString();
+        var id = Identifier.with(value);
         assertThat(id.getValue()).isEqualTo(value);
     }
 

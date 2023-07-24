@@ -1,0 +1,4 @@
+mysql:
+  url: localhost:3306/tasks
+  username: root
+  password: root123
