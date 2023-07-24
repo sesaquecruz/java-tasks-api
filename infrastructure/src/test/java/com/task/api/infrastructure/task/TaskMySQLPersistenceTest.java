@@ -17,12 +17,10 @@ import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @PersistenceTest
-@Testcontainers
 public class TaskMySQLPersistenceTest {
     @Autowired
     private TaskRepository repository;

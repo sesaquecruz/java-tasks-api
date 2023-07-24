@@ -76,9 +76,9 @@ class CreateTaskTest {
                     var handler = ((ValidationException) ex).getHandler();
                     assertThat(handler.hasError()).isTrue();
                     assertThat(handler.getErrors().size()).isEqualTo(6);
-                    assertThat(handler.hasCause("user id")).isTrue();
-                    assertThat(handler.getMessages("user id").size()).isEqualTo(1);
-                    assertThat(handler.getMessages("user id").get(0)).isEqualTo("must not be null");
+                    assertThat(handler.hasCause("user_id")).isTrue();
+                    assertThat(handler.getMessages("user_id").size()).isEqualTo(1);
+                    assertThat(handler.getMessages("user_id").get(0)).isEqualTo("must not be null");
                     assertThat(handler.hasCause("name")).isTrue();
                     assertThat(handler.getMessages("name").size()).isEqualTo(1);
                     assertThat(handler.getMessages("name").get(0)).isEqualTo("must not be null");
@@ -91,9 +91,9 @@ class CreateTaskTest {
                     assertThat(handler.hasCause("status")).isTrue();
                     assertThat(handler.getMessages("status").size()).isEqualTo(1);
                     assertThat(handler.getMessages("status").get(0)).isEqualTo("must not be null");
-                    assertThat(handler.hasCause("date")).isTrue();
-                    assertThat(handler.getMessages("date").size()).isEqualTo(1);
-                    assertThat(handler.getMessages("date").get(0)).isEqualTo("must not be null");
+                    assertThat(handler.hasCause("due_date")).isTrue();
+                    assertThat(handler.getMessages("due_date").size()).isEqualTo(1);
+                    assertThat(handler.getMessages("due_date").get(0)).isEqualTo("must not be null");
                 });
 
         verify(gateway, times(0)).save(any());
@@ -109,9 +109,9 @@ class CreateTaskTest {
                     var handler = ((ValidationException) ex).getHandler();
                     assertThat(handler.hasError()).isTrue();
                     assertThat(handler.getErrors().size()).isEqualTo(6);
-                    assertThat(handler.hasCause("user id")).isTrue();
-                    assertThat(handler.getMessages("user id").size()).isEqualTo(1);
-                    assertThat(handler.getMessages("user id").get(0)).isEqualTo("must not be blank");
+                    assertThat(handler.hasCause("user_id")).isTrue();
+                    assertThat(handler.getMessages("user_id").size()).isEqualTo(1);
+                    assertThat(handler.getMessages("user_id").get(0)).isEqualTo("must not be blank");
                     assertThat(handler.hasCause("name")).isTrue();
                     assertThat(handler.getMessages("name").size()).isEqualTo(1);
                     assertThat(handler.getMessages("name").get(0)).isEqualTo("must not be blank");
@@ -124,9 +124,9 @@ class CreateTaskTest {
                     assertThat(handler.hasCause("status")).isTrue();
                     assertThat(handler.getMessages("status").size()).isEqualTo(1);
                     assertThat(handler.getMessages("status").get(0)).isEqualTo("must not be blank");
-                    assertThat(handler.hasCause("date")).isTrue();
-                    assertThat(handler.getMessages("date").size()).isEqualTo(1);
-                    assertThat(handler.getMessages("date").get(0)).isEqualTo("must not be blank");
+                    assertThat(handler.hasCause("due_date")).isTrue();
+                    assertThat(handler.getMessages("due_date").size()).isEqualTo(1);
+                    assertThat(handler.getMessages("due_date").get(0)).isEqualTo("must not be blank");
                 });
 
         verify(gateway, times(0)).save(any());

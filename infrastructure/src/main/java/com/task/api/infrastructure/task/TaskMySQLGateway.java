@@ -17,7 +17,7 @@ public class TaskMySQLGateway implements TaskGateway {
     @Override
     public Task save(Task task) {
         return taskRepository
-                .save(TaskJpaEntity.from(task))
+                .saveAndFlush(TaskJpaEntity.from(task))
                 .toAggregate();
     }
 }

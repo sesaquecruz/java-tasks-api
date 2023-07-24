@@ -29,13 +29,15 @@ public class DefaultCreateTask extends CreateTask {
         var handler = ErrorHandler.create();
 
         var userId = catchErrors(() -> Identifier.with(input.userId()), handler);
-        handler.changeCause("id", "user id");
+        handler.changeCause("id", "user_id");
 
         var name = catchErrors(() -> Name.with(input.name()), handler);
         var description = catchErrors(() -> Description.with(input.description()), handler);
         var priority = catchErrors(() -> Priority.with(input.priority()), handler);
         var status = catchErrors(() -> Status.with(input.status()), handler);
+
         var dueDate = catchErrors(() -> Date.with(input.dueDate()), handler);
+        handler.changeCause("date", "due_date");
 
         if (handler.hasError())
             throw ValidationException.with(handler);
@@ -61,6 +63,6 @@ public class DefaultCreateTask extends CreateTask {
     }
 
     private CreateTaskOutput buildOutput(Task task) {
-        return CreateTaskOutput.with(task.getId().getValue().toString());
+        return CreateTaskOutput.with(task.getId().getValue());
     }
 }
