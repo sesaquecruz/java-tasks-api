@@ -1,2 +1,4 @@
 rootProject.name = 'task-api'
 include 'domain'
+include 'application'
+include 'infrastructure'

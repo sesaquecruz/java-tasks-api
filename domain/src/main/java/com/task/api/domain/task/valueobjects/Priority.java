@@ -1,43 +1,40 @@
-package com.task.api.domain.valueobjects;
+package com.task.api.domain.task.valueobjects;
 
 import com.task.api.domain.ValueObject;
 import com.task.api.domain.exceptions.ValidationException;
 import com.task.api.domain.validation.ErrorHandler;
 
 import java.util.Objects;
-import java.util.UUID;
 
-public class Identifier extends ValueObject {
-    private static final String CAUSE_ID = "id";
-    private final UUID value;
+public class Priority extends ValueObject {
+    public enum Value { LOW, NORMAL, HIGH }
 
-    private Identifier(UUID value) {
+    private static final String CAUSE_PRIORITY = "priority";
+    private final Value value;
+
+    private Priority(Value value) {
         this.value = value;
     }
 
-    public static Identifier with(String value) {
+    public static Priority with(String value) {
         var handler = ErrorHandler.create();
 
         if (value == null) {
-            handler.addError(CAUSE_ID, "must not be null");
+            handler.addError(CAUSE_PRIORITY, "must not be null");
             throw ValidationException.with(handler);
         }
 
         if (value.isBlank()) {
-            handler.addError(CAUSE_ID, "must not be blank");
+            handler.addError(CAUSE_PRIORITY, "must not be blank");
             throw ValidationException.with(handler);
         }
 
         try {
-            return new Identifier(UUID.fromString(value));
-        } catch (IllegalArgumentException ex) {
-            handler.addError(CAUSE_ID, "is invalid");
+            return new Priority(Value.valueOf(value.toUpperCase()));
+        } catch (Exception ex) {
+            handler.addError(CAUSE_PRIORITY, "is invalid");
             throw ValidationException.with(handler);
         }
-    }
-
-    public static Identifier unique() {
-        return Identifier.with(UUID.randomUUID().toString());
     }
 
     public String getValue() {
@@ -48,8 +45,8 @@ public class Identifier extends ValueObject {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Identifier that = (Identifier) o;
-        return Objects.equals(getValue(), that.getValue());
+        Priority priority = (Priority) o;
+        return Objects.equals(getValue(), priority.getValue());
     }
 
     @Override
