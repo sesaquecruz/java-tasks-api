@@ -22,7 +22,7 @@ public class DefaultCreateTask extends CreateTask {
     @Override
     public CreateTaskOutput execute(CreateTaskInput input) {
         var task = buildTask(input);
-        return buildOutput(saveTask(task));
+        return CreateTaskOutput.with(saveTask(task));
     }
 
     private Task buildTask(CreateTaskInput input) {
@@ -60,9 +60,5 @@ public class DefaultCreateTask extends CreateTask {
         } catch (Exception ex) {
             throw GatewayException.with(ex);
         }
-    }
-
-    private CreateTaskOutput buildOutput(Task task) {
-        return CreateTaskOutput.with(task.getId().getValue());
     }
 }
