@@ -4,6 +4,7 @@ import com.task.api.domain.task.Task;
 
 public record GetTaskOutput(
         String id,
+        String userId,
         String name,
         String description,
         String priority,
@@ -15,6 +16,7 @@ public record GetTaskOutput(
     public static GetTaskOutput with(Task task) {
         return new GetTaskOutput(
                 task.getId().getValue(),
+                task.getUserId().getValue(),
                 task.getName().getValue(),
                 task.getDescription().getValue(),
                 task.getPriority().getValue(),

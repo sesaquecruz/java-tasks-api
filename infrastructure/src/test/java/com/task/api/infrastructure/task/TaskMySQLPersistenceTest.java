@@ -9,6 +9,7 @@ import com.task.api.domain.utils.TimeUtils;
 import com.task.api.domain.valueobjects.Date;
 import com.task.api.domain.valueobjects.Identifier;
 import com.task.api.infrastructure.PersistenceTest;
+import com.task.api.infrastructure.task.persistence.TaskJpaEntity;
 import com.task.api.infrastructure.task.persistence.TaskRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -69,5 +70,42 @@ public class TaskMySQLPersistenceTest {
         assertThat(task.getDueDate()).isEqualTo(result.getDueDate()).isEqualTo(savedTask.getDueDate());
         assertThat(task.getCreatedAt()).isEqualTo(result.getCreatedAt()).isEqualTo(savedTask.getCreatedAt());
         assertThat(task.getUpdatedAt()).isEqualTo(result.getUpdatedAt()).isEqualTo(savedTask.getUpdatedAt());
+    }
+
+    @Test
+    public void shouldReturnATaskWhenItsExists() {
+        var task = Task.newTask(
+                Identifier.unique(),
+                Name.with("A Task"),
+                Description.with("A Description"),
+                Priority.with("Low"),
+                Status.with("Cancelled"),
+                Date.now()
+        );
+
+        repository.saveAndFlush(TaskJpaEntity.from(task));
+        assertThat(repository.count()).isEqualTo(1);
+
+        var savedTask = gateway.findById(task.getId()).get();
+
+        assertThat(task).isEqualTo(savedTask);
+        assertThat(task.getId()).isEqualTo(savedTask.getId());
+        assertThat(task.getUserId()).isEqualTo(savedTask.getUserId());
+        assertThat(task.getName()).isEqualTo(savedTask.getName());
+        assertThat(task.getDescription()).isEqualTo(savedTask.getDescription());
+        assertThat(task.getPriority()).isEqualTo(savedTask.getPriority());
+        assertThat(task.getStatus()).isEqualTo(savedTask.getStatus());
+        assertThat(task.getDueDate()).isEqualTo(savedTask.getDueDate());
+        assertThat(task.getCreatedAt()).isEqualTo(savedTask.getCreatedAt());
+        assertThat(task.getUpdatedAt()).isEqualTo(savedTask.getUpdatedAt());
+    }
+
+    @Test
+    public void shouldReturnEmptyWhenTaskDoesNotExists() {
+        var id = Identifier.unique();
+        assertThat(repository.count()).isEqualTo(0);
+
+        var savedTask = gateway.findById(id);
+        assertThat(savedTask.isEmpty()).isTrue();
     }
 }

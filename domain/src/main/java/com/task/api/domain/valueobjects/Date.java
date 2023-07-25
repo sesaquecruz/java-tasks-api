@@ -37,6 +37,10 @@ public class Date extends ValueObject {
         return new Date(Instant.parse(value));
     }
 
+    public static Date now() {
+        return Date.with(TimeUtils.now().toString());
+    }
+
     public Instant getValue() {
         return value;
     }

@@ -1,6 +1,14 @@
 package com.task.api.infrastructure.api;
 
+import com.task.api.domain.task.Task;
+import com.task.api.domain.task.valueobjects.Description;
+import com.task.api.domain.task.valueobjects.Name;
+import com.task.api.domain.task.valueobjects.Priority;
+import com.task.api.domain.task.valueobjects.Status;
+import com.task.api.domain.valueobjects.Date;
+import com.task.api.domain.valueobjects.Identifier;
 import com.task.api.infrastructure.E2ETest;
+import com.task.api.infrastructure.task.persistence.TaskJpaEntity;
 import com.task.api.infrastructure.task.persistence.TaskRepository;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
@@ -12,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -24,6 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import static io.restassured.RestAssured.get;
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;;
 import static org.hamcrest.Matchers.*;
@@ -155,5 +165,53 @@ public class TaskApiTest {
 
         assertThat(repository.count()).isEqualTo(0);
         JSONAssert.assertEquals(response.getBody().asString(), expectedResponseBody.toString(), false);
+    }
+
+    @Test
+    public void shouldReturnATaskWhenIdExists() {
+        var task = Task.newTask(
+                Identifier.unique(),
+                Name.with("A Task"),
+                Description.with("A Description"),
+                Priority.with("Normal"),
+                Status.with("Pending"),
+                Date.now()
+        );
+
+        assertThat(repository.count()).isEqualTo(0);
+        repository.saveAndFlush(TaskJpaEntity.from(task));
+        assertThat(repository.count()).isEqualTo(1);
+
+        get("/tasks/%s".formatted(task.getId().getValue())).then()
+                .statusCode(200)
+                .contentType("application/json")
+                .body("id", equalTo(task.getId().getValue()))
+                .body("name", equalTo(task.getName().getValue()))
+                .body("description", equalTo(task.getDescription().getValue()))
+                .body("priority", equalTo(task.getPriority().getValue()))
+                .body("status", equalTo(task.getStatus().getValue()))
+                .body("due_date", equalTo(task.getDueDate().getValue().toString()));
+    }
+
+    @Test
+    public void shouldReturnCode404WhenIdDoesNotExist() {
+        var id = Identifier.unique().getValue();
+        assertThat(repository.count()).isEqualTo(0);
+
+        get("/tasks/%s".formatted(id)).then()
+                .statusCode(404)
+                .assertThat()
+                .body(containsString("task with id %s was not found".formatted(id)));
+    }
+
+    @Test
+    public void shouldReturnCode400WhenIdIsInvalid() {
+        var id = "dfdf1i2891";
+        assertThat(repository.count()).isEqualTo(0);
+
+        get("/tasks/%s".formatted(id)).then()
+                .statusCode(400)
+                .assertThat()
+                .body(containsString("invalid id"));
     }
 }

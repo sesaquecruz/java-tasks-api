@@ -61,6 +61,7 @@ public class GetTaskTest {
         var output = useCase.execute(input);
 
         assertThat(output.id()).isEqualTo(task.getId().getValue());
+        assertThat(output.userId()).isEqualTo(task.getUserId().getValue());
         assertThat(output.name()).isEqualTo(task.getName().getValue());
         assertThat(output.description()).isEqualTo(task.getDescription().getValue());
         assertThat(output.priority()).isEqualTo(task.getPriority().getValue());
