@@ -1,6 +1,7 @@
 package com.task.api.infrastructure.task;
 
 import com.task.api.domain.task.Task;
+import com.task.api.domain.task.TaskQuery;
 import com.task.api.domain.task.valueobjects.Description;
 import com.task.api.domain.task.valueobjects.Name;
 import com.task.api.domain.task.valueobjects.Priority;
@@ -18,6 +19,9 @@ import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.junit.jupiter.Container;
+
+import java.util.*;
+import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -107,5 +111,281 @@ public class TaskMySQLPersistenceTest {
 
         var savedTask = gateway.findById(id);
         assertThat(savedTask.isEmpty()).isTrue();
+    }
+
+    @Test
+    public void shouldReturnAllItemsWhenPageSizeIsGreaterThanTotal() {
+        var tasks = saveTasks();
+        tasks.sort(Comparator.comparing(t -> t.getName().getValue()));
+
+        var query = TaskQuery.with(0, tasks.size(), null, "name", "asc");
+        var page = gateway.findAll(query);
+
+        assertThat(page.page()).isEqualTo(0);
+        assertThat(page.size()).isEqualTo(tasks.size());
+        assertThat(page.total()).isEqualTo(tasks.size());
+        assertThat(page.items().size()).isEqualTo(tasks.size());
+
+        IntStream.range(0, tasks.size()).forEach(i -> {
+            var task = tasks.get(i);
+            var item = page.items().get(i);
+
+            assertThat(task.getId()).isEqualTo(item.getId());
+            assertThat(task.getUserId()).isEqualTo(item.getUserId());
+            assertThat(task.getDescription()).isEqualTo(item.getDescription());
+            assertThat(task.getPriority()).isEqualTo(item.getPriority());
+            assertThat(task.getStatus()).isEqualTo(item.getStatus());
+            assertThat(task.getDueDate()).isEqualTo(item.getDueDate());
+            assertThat(task.getCreatedAt()).isEqualTo(item.getCreatedAt());
+            assertThat(task.getUpdatedAt()).isEqualTo(item.getUpdatedAt());
+        });
+    }
+
+    @Test
+    public void shouldReturnHalfItemsWhenPageSizeIsHalfOfTotal() {
+        var tasks = saveTasks();
+        tasks.sort(Comparator.comparing(t -> t.getName().getValue()));
+
+        var query = TaskQuery.with(0, tasks.size()/2, null, "name", "asc");
+        var page = gateway.findAll(query);
+
+        assertThat(page.page()).isEqualTo(0);
+        assertThat(page.size()).isEqualTo(tasks.size()/2);
+        assertThat(page.total()).isEqualTo(tasks.size());
+        assertThat(page.items().size()).isEqualTo(tasks.size()/2);
+
+        IntStream.range(0, tasks.size()/2).forEach(i -> {
+            var task = tasks.get(i);
+            var item = page.items().get(i);
+
+            assertThat(task.getId()).isEqualTo(item.getId());
+            assertThat(task.getUserId()).isEqualTo(item.getUserId());
+            assertThat(task.getDescription()).isEqualTo(item.getDescription());
+            assertThat(task.getPriority()).isEqualTo(item.getPriority());
+            assertThat(task.getStatus()).isEqualTo(item.getStatus());
+            assertThat(task.getDueDate()).isEqualTo(item.getDueDate());
+            assertThat(task.getCreatedAt()).isEqualTo(item.getCreatedAt());
+            assertThat(task.getUpdatedAt()).isEqualTo(item.getUpdatedAt());
+        });
+    }
+
+    @Test
+    public void shouldReturnLastHalfItemsWhenPageNumberIsOneAndPageSizeIsHalfOfTotal() {
+        var list = saveTasks();
+        var tasks = list.stream()
+                .sorted(Comparator.comparing(t -> t.getDueDate().getValue(), Comparator.reverseOrder()))
+                .skip(list.size() / 2)
+                .toList();
+
+        var query = TaskQuery.with(1, list.size()/2, null, "dueDate", "desc");
+        var page = gateway.findAll(query);
+
+        assertThat(page.page()).isEqualTo(1);
+        assertThat(page.size()).isEqualTo(list.size()/2);
+        assertThat(page.total()).isEqualTo(list.size());
+        assertThat(page.items().size()).isEqualTo(list.size()/2);
+
+        IntStream.range(0, tasks.size()/2).forEach(i -> {
+            var task = tasks.get(i);
+            var item = page.items().get(i);
+
+            assertThat(task.getId()).isEqualTo(item.getId());
+            assertThat(task.getUserId()).isEqualTo(item.getUserId());
+            assertThat(task.getDescription()).isEqualTo(item.getDescription());
+            assertThat(task.getPriority()).isEqualTo(item.getPriority());
+            assertThat(task.getStatus()).isEqualTo(item.getStatus());
+            assertThat(task.getDueDate()).isEqualTo(item.getDueDate());
+            assertThat(task.getCreatedAt()).isEqualTo(item.getCreatedAt());
+            assertThat(task.getUpdatedAt()).isEqualTo(item.getUpdatedAt());
+        });
+    }
+
+    @Test
+    public void shouldReturnItemsThatNameContainsAnSpecificTerm() {
+        var list = saveTasks();
+        var term = "One";
+        var tasks = list.stream()
+                .sorted(Comparator.comparing(t -> t.getName().getValue()))
+                .filter(t -> t.getName().getValue().contains(term) ||
+                        t.getDescription().getValue().contains(term) ||
+                        t.getPriority().getValue().contains(term) ||
+                        t.getStatus().getValue().contains(term)
+                )
+                .toList();
+
+        var query = TaskQuery.with(0, list.size(), term, "name", "asc");
+        var page = gateway.findAll(query);
+
+        assertThat(page.page()).isEqualTo(0);
+        assertThat(page.size()).isEqualTo(tasks.size());
+        assertThat(page.total()).isEqualTo(tasks.size());
+        assertThat(page.items().size()).isEqualTo(tasks.size());
+
+        IntStream.range(0, tasks.size()).forEach(i -> {
+            var task = tasks.get(i);
+            var item = page.items().get(i);
+
+            assertThat(task.getId()).isEqualTo(item.getId());
+            assertThat(task.getUserId()).isEqualTo(item.getUserId());
+            assertThat(task.getDescription()).isEqualTo(item.getDescription());
+            assertThat(task.getPriority()).isEqualTo(item.getPriority());
+            assertThat(task.getStatus()).isEqualTo(item.getStatus());
+            assertThat(task.getDueDate()).isEqualTo(item.getDueDate());
+            assertThat(task.getCreatedAt()).isEqualTo(item.getCreatedAt());
+            assertThat(task.getUpdatedAt()).isEqualTo(item.getUpdatedAt());
+        });
+    }
+
+    @Test
+    public void shouldReturnItemsThatDescriptionContainsAnSpecificTerm() {
+        var list = saveTasks();
+        var term = "Car";
+        var tasks = list.stream()
+                .sorted(Comparator.comparing(t -> t.getDescription().getValue()))
+                .filter(t -> t.getName().getValue().contains(term) ||
+                        t.getDescription().getValue().contains(term) ||
+                        t.getPriority().getValue().contains(term) ||
+                        t.getStatus().getValue().contains(term)
+                )
+                .toList();
+
+        var query = TaskQuery.with(0, list.size(), term, "name", "asc");
+        var page = gateway.findAll(query);
+
+        assertThat(page.page()).isEqualTo(0);
+        assertThat(page.size()).isEqualTo(tasks.size());
+        assertThat(page.total()).isEqualTo(tasks.size());
+        assertThat(page.items().size()).isEqualTo(tasks.size());
+
+        IntStream.range(0, tasks.size()).forEach(i -> {
+            var task = tasks.get(i);
+            var item = page.items().get(i);
+
+            assertThat(task.getId()).isEqualTo(item.getId());
+            assertThat(task.getUserId()).isEqualTo(item.getUserId());
+            assertThat(task.getDescription()).isEqualTo(item.getDescription());
+            assertThat(task.getPriority()).isEqualTo(item.getPriority());
+            assertThat(task.getStatus()).isEqualTo(item.getStatus());
+            assertThat(task.getDueDate()).isEqualTo(item.getDueDate());
+            assertThat(task.getCreatedAt()).isEqualTo(item.getCreatedAt());
+            assertThat(task.getUpdatedAt()).isEqualTo(item.getUpdatedAt());
+        });
+    }
+
+    @Test
+    public void shouldReturnItemsThatPriorityContainsAnSpecificTerm() {
+        var list = saveTasks();
+        var term = "HIGH";
+        var tasks = list.stream()
+                .sorted(Comparator.comparing(t -> t.getPriority().getValue()))
+                .filter(t -> t.getName().getValue().contains(term) ||
+                        t.getDescription().getValue().contains(term) ||
+                        t.getPriority().getValue().contains(term) ||
+                        t.getStatus().getValue().contains(term)
+                )
+                .toList();
+
+        var query = TaskQuery.with(0, list.size(), term, "name", "asc");
+        var page = gateway.findAll(query);
+
+        assertThat(page.page()).isEqualTo(0);
+        assertThat(page.size()).isEqualTo(tasks.size());
+        assertThat(page.total()).isEqualTo(tasks.size());
+        assertThat(page.items().size()).isEqualTo(tasks.size());
+
+        IntStream.range(0, tasks.size()).forEach(i -> {
+            var task = tasks.get(i);
+            var item = page.items().get(i);
+
+            assertThat(task.getId()).isEqualTo(item.getId());
+            assertThat(task.getUserId()).isEqualTo(item.getUserId());
+            assertThat(task.getDescription()).isEqualTo(item.getDescription());
+            assertThat(task.getPriority()).isEqualTo(item.getPriority());
+            assertThat(task.getStatus()).isEqualTo(item.getStatus());
+            assertThat(task.getDueDate()).isEqualTo(item.getDueDate());
+            assertThat(task.getCreatedAt()).isEqualTo(item.getCreatedAt());
+            assertThat(task.getUpdatedAt()).isEqualTo(item.getUpdatedAt());
+        });
+    }
+
+    @Test
+    public void shouldReturnItemsThatStatusContainsAnSpecificTerm() {
+        var list = saveTasks();
+        var term = "PENDING";
+        var tasks = list.stream()
+                .sorted(Comparator.comparing(t -> t.getStatus().getValue()))
+                .filter(t -> t.getName().getValue().contains(term) ||
+                        t.getDescription().getValue().contains(term) ||
+                        t.getPriority().getValue().contains(term) ||
+                        t.getStatus().getValue().contains(term)
+                )
+                .toList();
+
+        var query = TaskQuery.with(0, list.size(), term, "name", "asc");
+        var page = gateway.findAll(query);
+
+        assertThat(page.page()).isEqualTo(0);
+        assertThat(page.size()).isEqualTo(tasks.size());
+        assertThat(page.total()).isEqualTo(tasks.size());
+        assertThat(page.items().size()).isEqualTo(tasks.size());
+
+        IntStream.range(0, tasks.size()).forEach(i -> {
+            var task = tasks.get(i);
+            var item = page.items().get(i);
+
+            assertThat(task.getId()).isEqualTo(item.getId());
+            assertThat(task.getUserId()).isEqualTo(item.getUserId());
+            assertThat(task.getDescription()).isEqualTo(item.getDescription());
+            assertThat(task.getPriority()).isEqualTo(item.getPriority());
+            assertThat(task.getStatus()).isEqualTo(item.getStatus());
+            assertThat(task.getDueDate()).isEqualTo(item.getDueDate());
+            assertThat(task.getCreatedAt()).isEqualTo(item.getCreatedAt());
+            assertThat(task.getUpdatedAt()).isEqualTo(item.getUpdatedAt());
+        });
+    }
+
+    private List<Task> saveTasks() {
+        var tasks = new ArrayList<>(List.of(
+                Task.newTask(
+                        Identifier.unique(),
+                        Name.with("One"),
+                        Description.with("Car"),
+                        Priority.with("Low"),
+                        Status.with("Pending"),
+                        Date.now()
+                ),
+                Task.newTask(
+                        Identifier.unique(),
+                        Name.with("Two"),
+                        Description.with("Car"),
+                        Priority.with("Normal"),
+                        Status.with("Pending"),
+                        Date.now()
+                ),
+                Task.newTask(
+                        Identifier.unique(),
+                        Name.with("Three"),
+                        Description.with("Bike"),
+                        Priority.with("Normal"),
+                        Status.with("Cancelled"),
+                        Date.now()
+                ),
+                Task.newTask(
+                        Identifier.unique(),
+                        Name.with("Four"),
+                        Description.with("Skate"),
+                        Priority.with("High"),
+                        Status.with("Completed"),
+                        Date.now()
+                )
+        ));
+
+        repository.saveAllAndFlush(
+                tasks.stream()
+                        .map(TaskJpaEntity::from)
+                        .toList()
+        );
+
+        return  tasks;
     }
 }

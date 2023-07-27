@@ -4,6 +4,9 @@ import com.task.api.application.task.create.CreateTask;
 import com.task.api.application.task.create.CreateTaskInput;
 import com.task.api.application.task.retrieve.get.GetTask;
 import com.task.api.application.task.retrieve.get.GetTaskInput;
+import com.task.api.application.task.retrieve.list.ListTask;
+import com.task.api.application.task.retrieve.list.ListTaskInput;
+import com.task.api.domain.pagination.Page;
 import com.task.api.infrastructure.api.TaskApi;
 import com.task.api.infrastructure.task.models.CreateTaskRequest;
 import com.task.api.infrastructure.task.models.TaskResponse;
@@ -17,13 +20,16 @@ import java.net.URI;
 public class TaskController implements TaskApi {
     private final CreateTask createTaskUseCase;
     private final GetTask getTaskUseCase;
+    private final ListTask listTaskUseCase;
 
     public TaskController(
             CreateTask createTaskUseCase,
-            GetTask getTaskUseCase
+            GetTask getTaskUseCase,
+            ListTask listTaskUseCase
     ) {
         this.createTaskUseCase = createTaskUseCase;
         this.getTaskUseCase = getTaskUseCase;
+        this.listTaskUseCase = listTaskUseCase;
     }
 
     @Override
@@ -45,6 +51,13 @@ public class TaskController implements TaskApi {
     public ResponseEntity<TaskResponse> findTask(String id) {
         var input = GetTaskInput.with(id);
         var output = getTaskUseCase.execute(input);
+        return ResponseEntity.ok(TaskApiPresenter.present(output));
+    }
+
+    @Override
+    public ResponseEntity<Page<TaskResponse>> listTask(int page, int size, String term, String sort, String dir) {
+        var input = ListTaskInput.with(page, size, term, sort, dir);
+        var output = listTaskUseCase.execute(input);
         return ResponseEntity.ok(TaskApiPresenter.present(output));
     }
 }

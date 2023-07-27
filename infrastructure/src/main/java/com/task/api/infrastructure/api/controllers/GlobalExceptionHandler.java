@@ -1,9 +1,6 @@
 package com.task.api.infrastructure.api.controllers;
 
-import com.task.api.domain.exceptions.GatewayException;
-import com.task.api.domain.exceptions.IdentifierException;
-import com.task.api.domain.exceptions.NotFoundException;
-import com.task.api.domain.exceptions.ValidationException;
+import com.task.api.domain.exceptions.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -30,6 +27,13 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .badRequest()
                 .body(ex.getMessage());
+    }
+
+    @ExceptionHandler(value = QueryException.class)
+    public ResponseEntity<?> queryException(QueryException ex) {
+        return ResponseEntity
+                .badRequest()
+                .body(ex.getHandler().getErrors());
     }
 
     @ExceptionHandler(value = GatewayException.class)
