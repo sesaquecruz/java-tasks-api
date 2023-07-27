@@ -5,7 +5,7 @@ import com.task.api.domain.validation.ErrorHandler;
 public class ValidationException extends DomainException {
     private final ErrorHandler handler;
 
-    private ValidationException(ErrorHandler handler) {
+    protected ValidationException(ErrorHandler handler) {
         this.handler = handler;
     }
 
