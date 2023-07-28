@@ -9,4 +9,5 @@ public interface TaskGateway {
     Task save(Task task);
     Optional<Task> findById(Identifier id);
     Page<Task> findAll(TaskQuery query);
+    void delete(Identifier id);
 }

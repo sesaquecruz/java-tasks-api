@@ -344,6 +344,24 @@ public class TaskMySQLPersistenceTest {
         });
     }
 
+    @Test
+    public void shouldDeleteATask() {
+        var task = Task.newTask(
+                Identifier.unique(),
+                Name.with("A Task"),
+                Description.with("A Description"),
+                Priority.with("High"),
+                Status.with("Pending"),
+                Date.with(TimeUtils.now().toString())
+        );
+
+        gateway.save(task);
+        assertThat(repository.count()).isEqualTo(1);
+
+        gateway.delete(task.getId());
+        assertThat(repository.count()).isEqualTo(0);
+    }
+
     private List<Task> saveTasks() {
         var tasks = new ArrayList<>(List.of(
                 Task.newTask(

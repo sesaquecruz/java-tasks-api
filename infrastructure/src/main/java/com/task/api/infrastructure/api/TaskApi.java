@@ -2,6 +2,7 @@ package com.task.api.infrastructure.api;
 
 import com.task.api.domain.pagination.Page;
 import com.task.api.infrastructure.task.models.CreateTaskRequest;
+import com.task.api.infrastructure.task.models.DeleteTaskRequest;
 import com.task.api.infrastructure.task.models.TaskResponse;
 import com.task.api.infrastructure.task.models.UpdateTaskRequest;
 import org.springframework.http.MediaType;
@@ -38,4 +39,10 @@ public interface TaskApi {
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     ResponseEntity<Void> updateTask(@RequestBody UpdateTaskRequest body);
+
+    @DeleteMapping(
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    ResponseEntity<Void> deleteTask(@RequestBody DeleteTaskRequest body);
 }

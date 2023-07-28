@@ -67,4 +67,9 @@ public class TaskMySQLGateway implements TaskGateway {
                 result.map(TaskJpaEntity::toAggregate).toList()
         );
     }
+
+    @Override
+    public void delete(Identifier id) {
+        taskRepository.deleteById(id.getValue());
+    }
 }

@@ -2,6 +2,8 @@ package com.task.api.infrastructure.config;
 
 import com.task.api.application.task.create.CreateTask;
 import com.task.api.application.task.create.DefaultCreateTask;
+import com.task.api.application.task.delete.DefaultDeleteTask;
+import com.task.api.application.task.delete.DeleteTask;
 import com.task.api.application.task.retrieve.get.DefaultGetTask;
 import com.task.api.application.task.retrieve.get.GetTask;
 import com.task.api.application.task.retrieve.list.DefaultListTask;
@@ -32,5 +34,10 @@ public class UseCaseConfig {
     @Bean
     public UpdateTask updateTask(TaskGateway taskGateway) {
         return new DefaultUpdateTask(taskGateway);
+    }
+
+    @Bean
+    public DeleteTask deleteTask(TaskGateway taskGateway) {
+        return new DefaultDeleteTask(taskGateway);
     }
 }
