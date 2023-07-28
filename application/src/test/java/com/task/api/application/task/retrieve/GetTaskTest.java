@@ -1,4 +1,4 @@
-package com.task.api.application.task.create;
+package com.task.api.application.task.retrieve;
 
 import com.task.api.application.task.retrieve.get.DefaultGetTask;
 import com.task.api.application.task.retrieve.get.GetTaskInput;
