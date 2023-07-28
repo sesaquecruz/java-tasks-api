@@ -197,7 +197,7 @@ public class TaskApiTest {
     }
 
     @Test
-    public void shouldReturnCode404WhenIdDoesNotExist() {
+    public void shouldReturnCode404WhenTaskIdDoesNotExist() {
         var id = Identifier.unique().getValue();
         assertThat(repository.count()).isEqualTo(0);
 
@@ -208,7 +208,7 @@ public class TaskApiTest {
     }
 
     @Test
-    public void shouldReturnCode400WhenIdIsInvalid() {
+    public void shouldReturnCode400WhenTaskIdIsInvalid() {
         var id = "dfdf1i2891";
         assertThat(repository.count()).isEqualTo(0);
 
@@ -412,7 +412,7 @@ public class TaskApiTest {
     }
 
     @Test
-    public void shouldReturnNotFoundWhenUserIsNotTaskOwner() throws JSONException {
+    public void shouldNotUpdateTaskAndReturnCode404WhenUserIsNotTaskOwner() throws JSONException {
         var task = Task.newTask(
                 Identifier.unique(),
                 Name.with("A Name"),
@@ -453,6 +453,65 @@ public class TaskApiTest {
         assertThat(updatedTask.getCreatedAt()).isEqualTo(task.getCreatedAt());
         assertThat(updatedTask.getUpdatedAt()).isEqualTo(task.getUpdatedAt());
     }
+
+    @Test
+    public void shouldDeleteTaskWhenUserIsTaskOwner() throws JSONException {
+        var task = Task.newTask(
+                Identifier.unique(),
+                Name.with("A Name"),
+                Description.with("A Description"),
+                Priority.with("NORMAL"),
+                Status.with("PENDING"),
+                Date.now()
+        );
+
+        repository.saveAndFlush(TaskJpaEntity.from(task));
+        assertThat(repository.count()).isEqualTo(1);
+
+        var requestBody = new JSONObject()
+                .put("task_id", task.getId().getValue())
+                .put("user_id", task.getUserId().getValue());
+
+        given()
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .body(requestBody.toString()).
+        when()
+                .delete("/tasks").
+        then()
+                .statusCode(204);
+
+        assertThat(repository.count()).isEqualTo(0);
+    }
+
+    @Test
+    public void shouldNotDeleteTaskAndReturnCode404WhenUserIsNotTaskOwner() throws JSONException {
+        var task = Task.newTask(
+                Identifier.unique(),
+                Name.with("A Name"),
+                Description.with("A Description"),
+                Priority.with("NORMAL"),
+                Status.with("PENDING"),
+                Date.now()
+        );
+
+        repository.saveAndFlush(TaskJpaEntity.from(task));
+        assertThat(repository.count()).isEqualTo(1);
+
+        var requestBody = new JSONObject()
+                .put("task_id", task.getId().getValue())
+                .put("user_id", Identifier.unique().getValue());
+
+        given()
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .body(requestBody.toString()).
+                when()
+                .delete("/tasks").
+                then()
+                .statusCode(404);
+
+        assertThat(repository.count()).isEqualTo(1);
+    }
+
 
     private List<Task> saveTasks() {
         var tasks = new ArrayList<>(List.of(

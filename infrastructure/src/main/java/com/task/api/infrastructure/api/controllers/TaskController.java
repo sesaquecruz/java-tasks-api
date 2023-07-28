@@ -2,6 +2,8 @@ package com.task.api.infrastructure.api.controllers;
 
 import com.task.api.application.task.create.CreateTask;
 import com.task.api.application.task.create.CreateTaskInput;
+import com.task.api.application.task.delete.DeleteTask;
+import com.task.api.application.task.delete.DeleteTaskInput;
 import com.task.api.application.task.retrieve.get.GetTask;
 import com.task.api.application.task.retrieve.get.GetTaskInput;
 import com.task.api.application.task.retrieve.list.ListTask;
@@ -11,6 +13,7 @@ import com.task.api.application.task.updated.UpdateTaskInput;
 import com.task.api.domain.pagination.Page;
 import com.task.api.infrastructure.api.TaskApi;
 import com.task.api.infrastructure.task.models.CreateTaskRequest;
+import com.task.api.infrastructure.task.models.DeleteTaskRequest;
 import com.task.api.infrastructure.task.models.TaskResponse;
 import com.task.api.infrastructure.task.models.UpdateTaskRequest;
 import com.task.api.infrastructure.task.presenters.TaskApiPresenter;
@@ -25,17 +28,20 @@ public class TaskController implements TaskApi {
     private final GetTask getTaskUseCase;
     private final ListTask listTaskUseCase;
     private final UpdateTask updateTaskUseCase;
+    private final DeleteTask deleteTaskUseCase;
 
     public TaskController(
             CreateTask createTask,
             GetTask getTask,
             ListTask listTask,
-            UpdateTask updateTask
+            UpdateTask updateTask,
+            DeleteTask deleteTask
     ) {
         this.createTaskUseCase = createTask;
         this.getTaskUseCase = getTask;
         this.listTaskUseCase = listTask;
         this.updateTaskUseCase = updateTask;
+        this.deleteTaskUseCase = deleteTask;
     }
 
     @Override
@@ -79,6 +85,13 @@ public class TaskController implements TaskApi {
                 body.dueDate()
         );
         updateTaskUseCase.execute(input);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Override
+    public ResponseEntity<Void> deleteTask(final DeleteTaskRequest body) {
+        var input = DeleteTaskInput.with(body.taskId(), body.userId());
+        deleteTaskUseCase.execute(input);
         return ResponseEntity.noContent().build();
     }
 }
