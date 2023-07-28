@@ -155,4 +155,38 @@ public class TaskTest {
 
         assertThat(task1).isEqualTo(task2);
     }
+
+    @Test
+    public void shouldUpdateTaskFields() {
+        var task = Task.newTask(
+                Identifier.unique(),
+                Name.with("A Name"),
+                Description.with("A Description"),
+                Priority.with("LOW"),
+                Status.with("PENDING"),
+                Date.now()
+        );
+
+        var taskId = task.getId();
+        var userId = task.getUserId();
+        var dueDate = task.getDueDate();
+        var createdAt = task.getCreatedAt();
+        var updatedAt = task.getUpdatedAt();
+
+        task.updateName(Name.with("A New Name"))
+                .updateDescription(Description.with("A New Description"))
+                .updatePriority(Priority.with("NORMAL"))
+                .updateStatus(Status.with("COMPLETED"))
+                .updateDueDate(Date.now());
+
+        assertThat(task.getId()).isEqualTo(taskId);
+        assertThat(task.getUserId()).isEqualTo(userId);
+        assertThat(task.getName().getValue()).isEqualTo("A New Name");
+        assertThat(task.getDescription().getValue()).isEqualTo("A New Description");
+        assertThat(task.getPriority().getValue()).isEqualTo("NORMAL");
+        assertThat(task.getStatus().getValue()).isEqualTo("COMPLETED");
+        assertThat(task.getDueDate().getValue().isAfter(dueDate.getValue())).isTrue();
+        assertThat(task.getCreatedAt().getValue()).isEqualTo(createdAt.getValue());
+        assertThat(task.getUpdatedAt().getValue().isAfter(updatedAt.getValue())).isTrue();
+    }
 }

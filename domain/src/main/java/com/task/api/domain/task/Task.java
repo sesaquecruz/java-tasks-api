@@ -10,7 +10,7 @@ import com.task.api.domain.valueobjects.Date;
 import com.task.api.domain.valueobjects.Identifier;
 
 public class Task extends AggregateRoot {
-    private Identifier userId;
+    private final Identifier userId;
     private Name name;
     private Description description;
     private Priority priority;
@@ -94,6 +94,41 @@ public class Task extends AggregateRoot {
     @Override
     protected Task validate() {
         TaskValidator.with(this).validate();
+        return this;
+    }
+
+    public Task updateName(Name name) {
+        this.name = name;
+        this.updatedAt = Date.now();
+        validate();
+        return this;
+    }
+
+    public Task updateDescription(Description description) {
+        this.description = description;
+        this.updatedAt = Date.now();
+        validate();
+        return this;
+    }
+
+    public Task updatePriority(Priority priority) {
+        this.priority = priority;
+        this.updatedAt = Date.now();
+        validate();
+        return this;
+    }
+
+    public Task updateStatus(Status status) {
+        this.status = status;
+        this.updatedAt = Date.now();
+        validate();
+        return this;
+    }
+
+    public Task updateDueDate(Date dueDate) {
+        this.dueDate = dueDate;
+        this.updatedAt = Date.now();
+        validate();
         return this;
     }
 

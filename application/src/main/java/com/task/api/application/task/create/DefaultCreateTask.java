@@ -1,6 +1,5 @@
 package com.task.api.application.task.create;
 
-import com.task.api.domain.exceptions.GatewayException;
 import com.task.api.domain.exceptions.ValidationException;
 import com.task.api.domain.task.Task;
 import com.task.api.domain.task.TaskGateway;
@@ -12,7 +11,8 @@ import com.task.api.domain.validation.ErrorHandler;
 import com.task.api.domain.valueobjects.Date;
 import com.task.api.domain.valueobjects.Identifier;
 
-import java.util.function.Supplier;
+import static com.task.api.application.utils.TaskUtils.saveTask;
+import static com.task.api.application.utils.ValidationUtils.catchErrors;
 
 public class DefaultCreateTask extends CreateTask {
     public DefaultCreateTask(TaskGateway taskGateway) {
@@ -22,10 +22,10 @@ public class DefaultCreateTask extends CreateTask {
     @Override
     public CreateTaskOutput execute(CreateTaskInput input) {
         var task = buildTask(input);
-        return CreateTaskOutput.with(saveTask(task));
+        return CreateTaskOutput.with(saveTask(taskGateway, task));
     }
 
-    private Task buildTask(CreateTaskInput input) {
+    public static Task buildTask(CreateTaskInput input) {
         var handler = ErrorHandler.create();
 
         var userId = catchErrors(() -> Identifier.with(input.userId()), handler);
@@ -43,22 +43,5 @@ public class DefaultCreateTask extends CreateTask {
             throw ValidationException.with(handler);
 
         return Task.newTask(userId, name, description, priority, status, dueDate);
-    }
-
-    private <T> T catchErrors(Supplier<T> field, ErrorHandler handler) {
-        try {
-            return field.get();
-        } catch (ValidationException ex) {
-            handler.addErrors(ex.getHandler());
-            return null;
-        }
-    }
-
-    private Task saveTask(Task task) {
-        try {
-            return taskGateway.save(task);
-        } catch (Exception ex) {
-            throw GatewayException.with(ex);
-        }
     }
 }

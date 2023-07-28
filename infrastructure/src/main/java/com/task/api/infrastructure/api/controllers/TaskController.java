@@ -6,10 +6,13 @@ import com.task.api.application.task.retrieve.get.GetTask;
 import com.task.api.application.task.retrieve.get.GetTaskInput;
 import com.task.api.application.task.retrieve.list.ListTask;
 import com.task.api.application.task.retrieve.list.ListTaskInput;
+import com.task.api.application.task.updated.UpdateTask;
+import com.task.api.application.task.updated.UpdateTaskInput;
 import com.task.api.domain.pagination.Page;
 import com.task.api.infrastructure.api.TaskApi;
 import com.task.api.infrastructure.task.models.CreateTaskRequest;
 import com.task.api.infrastructure.task.models.TaskResponse;
+import com.task.api.infrastructure.task.models.UpdateTaskRequest;
 import com.task.api.infrastructure.task.presenters.TaskApiPresenter;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,15 +24,18 @@ public class TaskController implements TaskApi {
     private final CreateTask createTaskUseCase;
     private final GetTask getTaskUseCase;
     private final ListTask listTaskUseCase;
+    private final UpdateTask updateTaskUseCase;
 
     public TaskController(
-            CreateTask createTaskUseCase,
-            GetTask getTaskUseCase,
-            ListTask listTaskUseCase
+            CreateTask createTask,
+            GetTask getTask,
+            ListTask listTask,
+            UpdateTask updateTask
     ) {
-        this.createTaskUseCase = createTaskUseCase;
-        this.getTaskUseCase = getTaskUseCase;
-        this.listTaskUseCase = listTaskUseCase;
+        this.createTaskUseCase = createTask;
+        this.getTaskUseCase = getTask;
+        this.listTaskUseCase = listTask;
+        this.updateTaskUseCase = updateTask;
     }
 
     @Override
@@ -59,5 +65,20 @@ public class TaskController implements TaskApi {
         var input = ListTaskInput.with(page, size, term, sort, dir);
         var output = listTaskUseCase.execute(input);
         return ResponseEntity.ok(TaskApiPresenter.present(output));
+    }
+
+    @Override
+    public ResponseEntity<Void> updateTask(UpdateTaskRequest body) {
+        var input = UpdateTaskInput.with(
+                body.id(),
+                body.userId(),
+                body.name(),
+                body.description(),
+                body.priority(),
+                body.status(),
+                body.dueDate()
+        );
+        updateTaskUseCase.execute(input);
+        return ResponseEntity.noContent().build();
     }
 }

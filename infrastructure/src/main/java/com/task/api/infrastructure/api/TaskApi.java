@@ -3,6 +3,7 @@ package com.task.api.infrastructure.api;
 import com.task.api.domain.pagination.Page;
 import com.task.api.infrastructure.task.models.CreateTaskRequest;
 import com.task.api.infrastructure.task.models.TaskResponse;
+import com.task.api.infrastructure.task.models.UpdateTaskRequest;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -31,4 +32,10 @@ public interface TaskApi {
             @RequestParam(name = "sort", required = false, defaultValue = "name") String sort,
             @RequestParam(name = "dir", required = false, defaultValue = "asc") String dir
     );
+
+    @PutMapping(
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    ResponseEntity<Void> updateTask(@RequestBody UpdateTaskRequest body);
 }

@@ -5,6 +5,7 @@ import com.task.api.domain.task.valueobjects.Description;
 import com.task.api.domain.task.valueobjects.Name;
 import com.task.api.domain.task.valueobjects.Priority;
 import com.task.api.domain.task.valueobjects.Status;
+import com.task.api.domain.utils.TimeUtils;
 import com.task.api.domain.valueobjects.Date;
 import com.task.api.domain.valueobjects.Identifier;
 import com.task.api.infrastructure.E2ETest;
@@ -364,6 +365,93 @@ public class TaskApiTest {
             assertThat(item.getString("status")).isEqualTo(task.getStatus().getValue());
             assertThat(item.getString("due_date")).isEqualTo(task.getDueDate().getValue().toString());
         }
+    }
+
+    @Test
+    public void shouldUpdateTaskWhenUserIsTaskOwner() throws JSONException {
+        var task = Task.newTask(
+                Identifier.unique(),
+                Name.with("A Name"),
+                Description.with("A Description"),
+                Priority.with("NORMAL"),
+                Status.with("PENDING"),
+                Date.now()
+        );
+
+        repository.saveAndFlush(TaskJpaEntity.from(task));
+        assertThat(repository.count()).isEqualTo(1);
+
+        var dueDate = TimeUtils.now().toString();
+        var requestBody = new JSONObject()
+                .put("id", task.getId().getValue())
+                .put("user_id", task.getUserId().getValue())
+                .put("name", "A New Name")
+                .put("description", "A New Description")
+                .put("priority", "HIGH")
+                .put("status", "COMPLETED")
+                .put("due_date", dueDate);
+
+        given()
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .body(requestBody.toString()).
+        when()
+                .put("/tasks").
+        then()
+                .statusCode(204);
+
+        var updatedTask = repository.findById(task.getId().getValue()).get().toAggregate();
+
+        assertThat(updatedTask.getUserId()).isEqualTo(task.getUserId());
+        assertThat(updatedTask.getName().getValue()).isEqualTo("A New Name");
+        assertThat(updatedTask.getDescription().getValue()).isEqualTo("A New Description");
+        assertThat(updatedTask.getPriority().getValue()).isEqualTo("HIGH");
+        assertThat(updatedTask.getStatus().getValue()).isEqualTo("COMPLETED");
+        assertThat(updatedTask.getDueDate().getValue().toString()).isEqualTo(dueDate);
+        assertThat(updatedTask.getCreatedAt()).isEqualTo(task.getCreatedAt());
+        assertThat(updatedTask.getUpdatedAt().getValue().isAfter(task.getUpdatedAt().getValue())).isTrue();
+    }
+
+    @Test
+    public void shouldReturnNotFoundWhenUserIsNotTaskOwner() throws JSONException {
+        var task = Task.newTask(
+                Identifier.unique(),
+                Name.with("A Name"),
+                Description.with("A Description"),
+                Priority.with("NORMAL"),
+                Status.with("PENDING"),
+                Date.now()
+        );
+
+        repository.saveAndFlush(TaskJpaEntity.from(task));
+        assertThat(repository.count()).isEqualTo(1);
+
+        var requestBody = new JSONObject()
+                .put("id", task.getId().getValue())
+                .put("user_id", Identifier.unique().getValue())
+                .put("name", "A New Name")
+                .put("description", "A New Description")
+                .put("priority", "HIGH")
+                .put("status", "COMPLETED")
+                .put("due_date", TimeUtils.now().toString());
+
+        given()
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .body(requestBody.toString()).
+                when()
+                .put("/tasks").
+                then()
+                .statusCode(404);
+
+        var updatedTask = repository.findById(task.getId().getValue()).get().toAggregate();
+
+        assertThat(updatedTask.getUserId()).isEqualTo(task.getUserId());
+        assertThat(updatedTask.getName()).isEqualTo(task.getName());
+        assertThat(updatedTask.getDescription()).isEqualTo(task.getDescription());
+        assertThat(updatedTask.getPriority()).isEqualTo(task.getPriority());
+        assertThat(updatedTask.getStatus()).isEqualTo(task.getStatus());
+        assertThat(updatedTask.getDueDate()).isEqualTo(task.getDueDate());
+        assertThat(updatedTask.getCreatedAt()).isEqualTo(task.getCreatedAt());
+        assertThat(updatedTask.getUpdatedAt()).isEqualTo(task.getUpdatedAt());
     }
 
     private List<Task> saveTasks() {
