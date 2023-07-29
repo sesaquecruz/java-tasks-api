@@ -22,13 +22,11 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Objects;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -54,10 +52,10 @@ public class GetTaskTest {
                 Date.with(TimeUtils.now().toString())
         );
 
-        when(gateway.findById(any()))
+        when(gateway.findById(task.getId(), task.getUserId()))
                 .thenReturn(Optional.of(task));
 
-        var input = GetTaskInput.with(task.getId().getValue());
+        var input = GetTaskInput.with(task.getId().getValue(), task.getUserId().getValue());
         var output = useCase.execute(input);
 
         assertThat(output.id()).isEqualTo(task.getId().getValue());
@@ -69,70 +67,60 @@ public class GetTaskTest {
         assertThat(output.dueDate()).isEqualTo(task.getDueDate().getValue().toString());
         assertThat(output.createdAt()).isEqualTo(task.getCreatedAt().getValue().toString());
         assertThat(output.updatedAt()).isEqualTo(task.getUpdatedAt().getValue().toString());
-
-        verify(gateway, times(1)).findById(any());
-        verify(gateway, times(1)).findById(argThat(id ->
-                Objects.equals(task.getId().getValue(), id.getValue())
-        ));
     }
 
     @Test
     public void shouldThrowANotFoundExceptionWhenIdDoesNotExist() {
-        var id = Identifier.unique();
+        var taskId = Identifier.unique();
+        var userId = Identifier.unique();
 
-        when(gateway.findById(any()))
+        when(gateway.findById(taskId, userId))
                 .thenReturn(Optional.empty());
 
-        var input = GetTaskInput.with(id.getValue());
+        var input = GetTaskInput.with(taskId.getValue(), userId.getValue());
 
         assertThatThrownBy(() -> useCase.execute(input))
                 .isInstanceOf(NotFoundException.class)
                 .satisfies(ex -> {
                     assertThat(ex.getMessage())
-                            .isEqualTo("task with id %s was not found".formatted(id.getValue()));
+                            .isEqualTo("task with id %s was not found".formatted(taskId.getValue()));
                 });
-
-        verify(gateway, times(1)).findById(any());
-        verify(gateway, times(1)).findById(argThat(arg ->
-                Objects.equals(id.getValue(), arg.getValue())
-        ));
     }
 
     @Test
     public void shouldThrowAIdentifierExceptionWhenIdIsNull() {
-        var input = GetTaskInput.with(null);
+        var userId = Identifier.unique();
+        var input = GetTaskInput.with(null, userId.getValue());
 
         assertThatThrownBy(() -> useCase.execute(input))
                 .isInstanceOf(IdentifierException.class)
                 .satisfies(ex -> {
                     assertThat(ex.getMessage()).isEqualTo("invalid id");
                 });
-
-        verify(gateway, times(0)).findById(any());
     }
 
     @Test
     public void shouldThrowAIdentifierExceptionWhenIdIsBlank() {
-        var id = "   ";
-        var input = GetTaskInput.with(id);
+        var taskId = "   ";
+        var userId = Identifier.unique();
+        var input = GetTaskInput.with(taskId, userId.getValue());
 
         assertThatThrownBy(() -> useCase.execute(input))
                 .isInstanceOf(IdentifierException.class)
                 .satisfies(ex -> {
                     assertThat(ex.getMessage()).isEqualTo("invalid id");
                 });
-
-        verify(gateway, times(0)).findById(any());
     }
 
     @Test
     public void shouldThrowAGatewayExceptionWhenGatewayThrowsAnException() {
-        var id = Identifier.unique();
+        var taskId = Identifier.unique();
+        var userId = Identifier.unique();
 
         doThrow(GatewayException.with(new RuntimeException("Internal error")))
-                .when(gateway).findById(any());
+                .when(gateway).findById(taskId, userId);
 
-        var input = GetTaskInput.with(id.getValue());
+        var input = GetTaskInput.with(taskId.getValue(), userId.getValue());
 
         assertThatThrownBy(() -> useCase.execute(input))
                 .isInstanceOf(GatewayException.class)

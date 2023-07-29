@@ -18,6 +18,7 @@ import com.task.api.infrastructure.task.models.TaskResponse;
 import com.task.api.infrastructure.task.models.UpdateTaskRequest;
 import com.task.api.infrastructure.task.presenters.TaskApiPresenter;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.net.URI;
@@ -45,9 +46,9 @@ public class TaskController implements TaskApi {
     }
 
     @Override
-    public ResponseEntity<Void> createTask(CreateTaskRequest body) {
+    public ResponseEntity<Void> createTask(JwtAuthenticationToken auth, CreateTaskRequest body) {
         var input = CreateTaskInput.with(
-                body.userId(),
+                auth.getToken().getSubject(),
                 body.name(),
                 body.description(),
                 body.priority(),
@@ -60,24 +61,24 @@ public class TaskController implements TaskApi {
     }
 
     @Override
-    public ResponseEntity<TaskResponse> findTask(String id) {
-        var input = GetTaskInput.with(id);
+    public ResponseEntity<TaskResponse> findTask(JwtAuthenticationToken auth, String id) {
+        var input = GetTaskInput.with(id, auth.getToken().getSubject());
         var output = getTaskUseCase.execute(input);
         return ResponseEntity.ok(TaskApiPresenter.present(output));
     }
 
     @Override
-    public ResponseEntity<Page<TaskResponse>> listTask(int page, int size, String term, String sort, String dir) {
-        var input = ListTaskInput.with(page, size, term, sort, dir);
+    public ResponseEntity<Page<TaskResponse>> listTask(JwtAuthenticationToken auth, int page, int size, String term, String sort, String dir) {
+        var input = ListTaskInput.with(auth.getToken().getSubject(), page, size, term, sort, dir);
         var output = listTaskUseCase.execute(input);
         return ResponseEntity.ok(TaskApiPresenter.present(output));
     }
 
     @Override
-    public ResponseEntity<Void> updateTask(UpdateTaskRequest body) {
+    public ResponseEntity<Void> updateTask(JwtAuthenticationToken auth, UpdateTaskRequest body) {
         var input = UpdateTaskInput.with(
                 body.id(),
-                body.userId(),
+                auth.getToken().getSubject(),
                 body.name(),
                 body.description(),
                 body.priority(),
@@ -89,8 +90,8 @@ public class TaskController implements TaskApi {
     }
 
     @Override
-    public ResponseEntity<Void> deleteTask(final DeleteTaskRequest body) {
-        var input = DeleteTaskInput.with(body.taskId(), body.userId());
+    public ResponseEntity<Void> deleteTask(JwtAuthenticationToken auth, DeleteTaskRequest body) {
+        var input = DeleteTaskInput.with(body.taskId(), auth.getToken().getSubject());
         deleteTaskUseCase.execute(input);
         return ResponseEntity.noContent().build();
     }

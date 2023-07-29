@@ -9,6 +9,7 @@ import com.task.api.domain.utils.TimeUtils;
 import com.task.api.domain.valueobjects.Date;
 import com.task.api.domain.valueobjects.Identifier;
 import com.task.api.infrastructure.E2ETest;
+import com.task.api.infrastructure.config.TestJwtConfig;
 import com.task.api.infrastructure.task.persistence.TaskJpaEntity;
 import com.task.api.infrastructure.task.persistence.TaskRepository;
 import io.restassured.RestAssured;
@@ -39,8 +40,6 @@ import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.*;
 
-;
-
 @E2ETest
 public class TaskApiTest {
     @LocalServerPort
@@ -68,7 +67,6 @@ public class TaskApiTest {
     @Test
     public void shouldCreateATaskAndReturnItsLocationWhenDataIsValid() throws JSONException {
         var requestBody = new JSONObject()
-                .put("user_id", UUID.randomUUID().toString())
                 .put("name", "A name")
                 .put("description", "A Description")
                 .put("priority", "Normal")
@@ -78,6 +76,7 @@ public class TaskApiTest {
         assertThat(repository.count()).isEqualTo(0);
 
         Response response = given()
+                .header("Authorization", "Bearer " +  TestJwtConfig.TOKEN)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .body(requestBody.toString()).
         when()
@@ -94,7 +93,6 @@ public class TaskApiTest {
         var taskId = response.header("Location").replace("/tasks/", "");
         var task = repository.findById(taskId).get().toAggregate();
 
-        assertThat(requestBody.getString("user_id")).isEqualTo(task.getUserId().getValue());
         assertThat(requestBody.getString("name")).isEqualTo(task.getName().getValue());
         assertThat(requestBody.getString("description")).isEqualTo(task.getDescription().getValue());
         assertThat(requestBody.getString("priority").toUpperCase()).isEqualTo(task.getPriority().getValue());
@@ -105,7 +103,6 @@ public class TaskApiTest {
     @Test
     public void shouldReturnCode422AndErrorsWhenDataIsNull() throws JSONException {
         var requestBody = new JSONObject()
-                .put("user_id", null)
                 .put("name", null)
                 .put("description", null)
                 .put("priority", null)
@@ -113,7 +110,6 @@ public class TaskApiTest {
                 .put("due_date", null);
 
         var expectedResponseBody = new JSONObject()
-                .put("user_id", new JSONArray().put("must not be null"))
                 .put("name", new JSONArray().put("must not be null"))
                 .put("description", new JSONArray().put("must not be null"))
                 .put("priority", new JSONArray().put("must not be null"))
@@ -123,6 +119,7 @@ public class TaskApiTest {
         assertThat(repository.count()).isEqualTo(0);
 
         Response response = given()
+                .header("Authorization", "Bearer " +  TestJwtConfig.TOKEN)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .body(requestBody.toString()).
         when()
@@ -139,7 +136,6 @@ public class TaskApiTest {
     @Test
     public void shouldReturnCode422AndErrorsWhenDataIsBlank() throws JSONException {
         var requestBody = new JSONObject()
-                .put("user_id", " ")
                 .put("name", "")
                 .put("description", "    ")
                 .put("priority", " ")
@@ -147,7 +143,6 @@ public class TaskApiTest {
                 .put("due_date", " ");
 
         var expectedResponseBody = new JSONObject()
-                .put("user_id", new JSONArray().put("must not be blank"))
                 .put("name", new JSONArray().put("must not be blank"))
                 .put("description", new JSONArray().put("must not be blank"))
                 .put("priority", new JSONArray().put("must not be blank"))
@@ -157,6 +152,7 @@ public class TaskApiTest {
         assertThat(repository.count()).isEqualTo(0);
 
         Response response = given()
+                .header("Authorization", "Bearer " +  TestJwtConfig.TOKEN)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .body(requestBody.toString()).
                 when()
@@ -172,8 +168,9 @@ public class TaskApiTest {
 
     @Test
     public void shouldReturnATaskWhenIdExists() {
+        var userId = Identifier.with(TestJwtConfig.SUB);
         var task = Task.newTask(
-                Identifier.unique(),
+                userId,
                 Name.with("A Task"),
                 Description.with("A Description"),
                 Priority.with("Normal"),
@@ -185,6 +182,8 @@ public class TaskApiTest {
         repository.saveAndFlush(TaskJpaEntity.from(task));
         assertThat(repository.count()).isEqualTo(1);
 
+        given()
+                .header("Authorization", "Bearer " +  TestJwtConfig.TOKEN).
         get("/tasks/%s".formatted(task.getId().getValue())).then()
                 .statusCode(200)
                 .contentType("application/json")
@@ -201,6 +200,8 @@ public class TaskApiTest {
         var id = Identifier.unique().getValue();
         assertThat(repository.count()).isEqualTo(0);
 
+        given()
+                .header("Authorization", "Bearer " +  TestJwtConfig.TOKEN).
         get("/tasks/%s".formatted(id)).then()
                 .statusCode(404)
                 .assertThat()
@@ -212,6 +213,8 @@ public class TaskApiTest {
         var id = "dfdf1i2891";
         assertThat(repository.count()).isEqualTo(0);
 
+        given()
+                .header("Authorization", "Bearer " +  TestJwtConfig.TOKEN).
         get("/tasks/%s".formatted(id)).then()
                 .statusCode(400)
                 .assertThat()
@@ -224,6 +227,7 @@ public class TaskApiTest {
         tasks.sort(Comparator.comparing(t -> t.getName().getValue()));
 
         var response = given()
+                .header("Authorization", "Bearer " +  TestJwtConfig.TOKEN)
                 .queryParam("page", 0)
                 .queryParam("size", tasks.size()).
         when()
@@ -258,6 +262,7 @@ public class TaskApiTest {
         tasks.sort(Comparator.comparing(t -> t.getDueDate().getValue().toString()));
 
         var response = given()
+                .header("Authorization", "Bearer " +  TestJwtConfig.TOKEN)
                 .queryParam("page", 0)
                 .queryParam("size", tasks.size())
                 .queryParam("sort", "dueDate").
@@ -297,6 +302,7 @@ public class TaskApiTest {
                 .toList();
 
         var response = given()
+                .header("Authorization", "Bearer " +  TestJwtConfig.TOKEN)
                 .queryParam("page", 1)
                 .queryParam("size", 2).
         when()
@@ -340,6 +346,7 @@ public class TaskApiTest {
                 .toList();
 
         var response = given()
+                .header("Authorization", "Bearer " +  TestJwtConfig.TOKEN)
                 .queryParam("term", term).
         when()
                 .get("/tasks").
@@ -369,8 +376,9 @@ public class TaskApiTest {
 
     @Test
     public void shouldUpdateTaskWhenUserIsTaskOwner() throws JSONException {
+        var userId = Identifier.with(TestJwtConfig.SUB);
         var task = Task.newTask(
-                Identifier.unique(),
+                userId,
                 Name.with("A Name"),
                 Description.with("A Description"),
                 Priority.with("NORMAL"),
@@ -384,7 +392,6 @@ public class TaskApiTest {
         var dueDate = TimeUtils.now().toString();
         var requestBody = new JSONObject()
                 .put("id", task.getId().getValue())
-                .put("user_id", task.getUserId().getValue())
                 .put("name", "A New Name")
                 .put("description", "A New Description")
                 .put("priority", "HIGH")
@@ -392,6 +399,7 @@ public class TaskApiTest {
                 .put("due_date", dueDate);
 
         given()
+                .header("Authorization", "Bearer " +  TestJwtConfig.TOKEN)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .body(requestBody.toString()).
         when()
@@ -435,11 +443,12 @@ public class TaskApiTest {
                 .put("due_date", TimeUtils.now().toString());
 
         given()
+                .header("Authorization", "Bearer " +  TestJwtConfig.TOKEN)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .body(requestBody.toString()).
-                when()
+        when()
                 .put("/tasks").
-                then()
+        then()
                 .statusCode(404);
 
         var updatedTask = repository.findById(task.getId().getValue()).get().toAggregate();
@@ -456,8 +465,9 @@ public class TaskApiTest {
 
     @Test
     public void shouldDeleteTaskWhenUserIsTaskOwner() throws JSONException {
+        var userId = Identifier.with(TestJwtConfig.SUB);
         var task = Task.newTask(
-                Identifier.unique(),
+                userId,
                 Name.with("A Name"),
                 Description.with("A Description"),
                 Priority.with("NORMAL"),
@@ -469,10 +479,10 @@ public class TaskApiTest {
         assertThat(repository.count()).isEqualTo(1);
 
         var requestBody = new JSONObject()
-                .put("task_id", task.getId().getValue())
-                .put("user_id", task.getUserId().getValue());
+                .put("task_id", task.getId().getValue());
 
         given()
+                .header("Authorization", "Bearer " +  TestJwtConfig.TOKEN)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .body(requestBody.toString()).
         when()
@@ -498,10 +508,10 @@ public class TaskApiTest {
         assertThat(repository.count()).isEqualTo(1);
 
         var requestBody = new JSONObject()
-                .put("task_id", task.getId().getValue())
-                .put("user_id", Identifier.unique().getValue());
+                .put("task_id", task.getId().getValue());
 
         given()
+                .header("Authorization", "Bearer " +  TestJwtConfig.TOKEN)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .body(requestBody.toString()).
                 when()
@@ -514,9 +524,10 @@ public class TaskApiTest {
 
 
     private List<Task> saveTasks() {
+        var userId = TestJwtConfig.SUB;
         var tasks = new ArrayList<>(List.of(
                 Task.newTask(
-                        Identifier.unique(),
+                        Identifier.with(userId),
                         Name.with("One"),
                         Description.with("NORMAL"),
                         Priority.with("LOW"),
@@ -524,7 +535,7 @@ public class TaskApiTest {
                         Date.now()
                 ),
                 Task.newTask(
-                        Identifier.unique(),
+                        Identifier.with(userId),
                         Name.with("Two"),
                         Description.with("Bike"),
                         Priority.with("NORMAL"),
@@ -532,7 +543,7 @@ public class TaskApiTest {
                         Date.now()
                 ),
                 Task.newTask(
-                        Identifier.unique(),
+                        Identifier.with(userId),
                         Name.with("Three"),
                         Description.with("Bike"),
                         Priority.with("NORMAL"),
@@ -540,7 +551,7 @@ public class TaskApiTest {
                         Date.now()
                 ),
                 Task.newTask(
-                        Identifier.unique(),
+                        Identifier.with(userId),
                         Name.with("Four"),
                         Description.with("Surf"),
                         Priority.with("HIGH"),
@@ -548,7 +559,7 @@ public class TaskApiTest {
                         Date.now()
                 ),
                 Task.newTask(
-                        Identifier.unique(),
+                        Identifier.with(userId),
                         Name.with("Five"),
                         Description.with("Hike"),
                         Priority.with("HIGH"),

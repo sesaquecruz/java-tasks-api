@@ -45,9 +45,10 @@ public class ListTaskTest {
 
     @Test
     public void shouldReturnAPageWithItemsWhenItemsExist() {
+        var userId = Identifier.unique();
         var tasks = List.of(
                 Task.newTask(
-                        Identifier.unique(),
+                        userId,
                         Name.with("Task 1"),
                         Description.with("Description 1"),
                         Priority.with("Normal"),
@@ -55,7 +56,7 @@ public class ListTaskTest {
                         Date.now()
                 ),
                 Task.newTask(
-                        Identifier.unique(),
+                        userId,
                         Name.with("Task 2"),
                         Description.with("Description 2"),
                         Priority.with("High"),
@@ -66,10 +67,10 @@ public class ListTaskTest {
 
         var page = Page.with(1, 2, 2, tasks);
 
-        when(gateway.findAll(any()))
+        when(gateway.findAll(any(), eq(userId)))
                 .thenReturn(page);
 
-        var input = ListTaskInput.with(1, 3, "car", "name", "asc");
+        var input = ListTaskInput.with(userId.getValue(),1, 3, "car", "name", "asc");
         var output = useCase.execute(input);
 
         assertThat(output.page()).isEqualTo(page.page());
@@ -92,24 +93,24 @@ public class ListTaskTest {
             assertThat(result.updatedAt()).isEqualTo(task.getUpdatedAt().getValue().toString());
         });
 
-        verify(gateway, times(1)).findAll(any());
         verify(gateway, times(1)).findAll(argThat(query ->
                 Objects.equals(input.page(), query.getPage()) &&
                 Objects.equals(input.size(), query.getSize()) &&
                 Objects.equals(input.term(), query.getTerm()) &&
                 Objects.equals(input.sort(), query.getSort()) &&
                 Objects.equals(input.direction(), query.getDirection())
-        ));
+        ), eq(userId));
     }
 
     @Test
     public void shouldReturnAEmptyPageWhenItemsDoNotExist() {
+        var userId = Identifier.unique();
         var page = Page.with(0, 0, 0, new ArrayList<Task>());
 
-        when(gateway.findAll(any()))
+        when(gateway.findAll(any(), eq(userId)))
                 .thenReturn(page);
 
-        var input = ListTaskInput.with(0, 1, "car", "name", "desc");
+        var input = ListTaskInput.with(userId.getValue(), 0, 1, "car", "name", "desc");
         var output = useCase.execute(input);
 
         assertThat(output.page()).isEqualTo(page.page());
@@ -117,19 +118,20 @@ public class ListTaskTest {
         assertThat(output.total()).isEqualTo(page.total());
         assertThat(output.items().size()).isEqualTo(page.items().size()).isEqualTo(0);
 
-        verify(gateway, times(1)).findAll(any());
         verify(gateway, times(1)).findAll(argThat(query ->
                 Objects.equals(input.page(), query.getPage()) &&
                         Objects.equals(input.size(), query.getSize()) &&
                         Objects.equals(input.term(), query.getTerm()) &&
                         Objects.equals(input.sort(), query.getSort()) &&
                         Objects.equals(input.direction(), query.getDirection())
-        ));
+        ), eq(userId));
     }
 
     @Test
     public void shouldThrowAQueryExceptionWhenInputIsInvalid() {
+        var userId = Identifier.unique();
         var input = ListTaskInput.with(
+                userId.getValue(),
                 -1,
                 0,
                 "sdf912kjfiouf0192312jlkasduoi31",
@@ -163,10 +165,12 @@ public class ListTaskTest {
 
     @Test
     public void shouldThrowAGatewayExceptionWhenGatewayThrowsAnException() {
-        doThrow(GatewayException.with(new RuntimeException("Internal error")))
-                .when(gateway).findAll(any());
+        var userId = Identifier.unique();
 
-        var input = ListTaskInput.with(0, 3, "car", "name", "asc");
+        doThrow(GatewayException.with(new RuntimeException("Internal error")))
+                .when(gateway).findAll(any(), eq(userId));
+
+        var input = ListTaskInput.with(userId.getValue(), 0, 3, "car", "name", "asc");
 
         assertThatThrownBy(() -> useCase.execute(input))
                 .isInstanceOf(GatewayException.class)

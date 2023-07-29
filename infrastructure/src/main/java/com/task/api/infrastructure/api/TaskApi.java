@@ -7,6 +7,7 @@ import com.task.api.infrastructure.task.models.TaskResponse;
 import com.task.api.infrastructure.task.models.UpdateTaskRequest;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 
 @RequestMapping("tasks")
@@ -15,18 +16,19 @@ public interface TaskApi {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    ResponseEntity<Void> createTask(@RequestBody CreateTaskRequest body);
+    ResponseEntity<Void> createTask(JwtAuthenticationToken auth, @RequestBody CreateTaskRequest body);
 
     @GetMapping(
             value = "{id}",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    ResponseEntity<TaskResponse> findTask(@PathVariable(name = "id") String id);
+    ResponseEntity<TaskResponse> findTask(JwtAuthenticationToken auth, @PathVariable(name = "id") String id);
 
     @GetMapping(
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     ResponseEntity<Page<TaskResponse>> listTask(
+            JwtAuthenticationToken auth,
             @RequestParam(name = "page", required = false, defaultValue = "0") int page,
             @RequestParam(name = "size", required = false, defaultValue = "10") int size,
             @RequestParam(name = "term", required = false, defaultValue = "") String term,
@@ -38,11 +40,11 @@ public interface TaskApi {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    ResponseEntity<Void> updateTask(@RequestBody UpdateTaskRequest body);
+    ResponseEntity<Void> updateTask(JwtAuthenticationToken auth, @RequestBody UpdateTaskRequest body);
 
     @DeleteMapping(
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    ResponseEntity<Void> deleteTask(@RequestBody DeleteTaskRequest body);
+    ResponseEntity<Void> deleteTask(JwtAuthenticationToken auth, @RequestBody DeleteTaskRequest body);
 }

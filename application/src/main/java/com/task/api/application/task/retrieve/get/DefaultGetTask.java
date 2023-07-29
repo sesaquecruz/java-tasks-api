@@ -12,8 +12,9 @@ public class DefaultGetTask extends GetTask {
 
     @Override
     public GetTaskOutput execute(GetTaskInput input) {
-        var id = buildIdentifier(input.id());
-        var task = getTask(taskGateway, id);
+        var taskId = buildIdentifier(input.taskId());
+        var userId = buildIdentifier(input.userId());
+        var task = getTask(taskGateway, taskId, userId);
         return GetTaskOutput.with(task);
     }
 }

@@ -19,22 +19,17 @@ public final class TaskUtils {
         }
     }
 
-    public static Task getTask(TaskGateway gateway, Identifier id) {
+    public static Task getTask(TaskGateway gateway, Identifier taskId, Identifier userId) {
         Optional<Task> task;
         try {
-            task = gateway.findById(id);
+            task = gateway.findById(taskId, userId);
         } catch (Exception ex) {
             throw GatewayException.with(ex);
         }
 
         if (task.isEmpty())
-            throw NotFoundException.with(Task.class, id);
+            throw NotFoundException.with(Task.class, taskId);
 
         return task.get();
-    }
-
-    public static void validateTaskOwner(Task task, Identifier ownerId) {
-        if (!task.getUserId().equals(ownerId))
-            throw NotFoundException.with(Task.class, task.getId());
     }
 }

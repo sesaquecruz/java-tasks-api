@@ -56,7 +56,7 @@ public class TaskUpdateTest {
                 Date.now()
         );
 
-        when(gateway.findById(task.getId()))
+        when(gateway.findById(task.getId(), task.getUserId()))
                 .thenReturn(Optional.of(task));
 
         when(gateway.save(any()))
@@ -106,6 +106,7 @@ public class TaskUpdateTest {
 
     @Test
     public void shouldThrowANotFoundExceptionWhenUserIsNotTaskOwner() {
+        var userId = Identifier.unique();
         var task = Task.newTask(
                 Identifier.unique(),
                 Name.with("A Task"),
@@ -115,12 +116,12 @@ public class TaskUpdateTest {
                 Date.now()
         );
 
-        when(gateway.findById(task.getId()))
-                .thenReturn(Optional.of(task));
+        when(gateway.findById(task.getId(), userId))
+                .thenReturn(Optional.empty());
 
         var input = UpdateTaskInput.with(
                 task.getId().getValue(),
-                Identifier.unique().getValue(),
+                userId.getValue(),
                 "A New Task",
                 "A New Description",
                 "HIGH",
@@ -138,12 +139,15 @@ public class TaskUpdateTest {
 
     @Test
     public void shouldThrowAGatewayExceptionWhenGatewayThrowsAnException() {
+        var taskId = Identifier.unique();
+        var userId = Identifier.unique();
+
         doThrow(GatewayException.with(new RuntimeException("Internal error")))
-                .when(gateway).findById(any());
+                .when(gateway).findById(taskId, userId);
 
         var input = UpdateTaskInput.with(
-                Identifier.unique().getValue(),
-                Identifier.unique().getValue(),
+                taskId.getValue(),
+                userId.getValue(),
                 "A New Task",
                 "A New Description",
                 "HIGH",

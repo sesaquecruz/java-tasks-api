@@ -4,6 +4,9 @@ import com.task.api.domain.exceptions.GatewayException;
 import com.task.api.domain.pagination.Page;
 import com.task.api.domain.task.TaskGateway;
 import com.task.api.domain.task.TaskQuery;
+import com.task.api.domain.valueobjects.Identifier;
+
+import static com.task.api.application.utils.IdentifierUtils.buildIdentifier;
 
 public class DefaultListTask extends ListTask {
     public DefaultListTask(TaskGateway taskGateway) {
@@ -12,7 +15,9 @@ public class DefaultListTask extends ListTask {
 
     @Override
     public Page<ListTaskOutput> execute(ListTaskInput input) {
-        return getPage(buildQuery(input));
+        var userId = buildIdentifier(input.userId());
+        var query = buildQuery(input);
+        return getPage(query, userId);
     }
 
     private TaskQuery buildQuery(ListTaskInput input) {
@@ -25,10 +30,10 @@ public class DefaultListTask extends ListTask {
          );
     }
 
-    private Page<ListTaskOutput> getPage(TaskQuery query) {
+    private Page<ListTaskOutput> getPage(TaskQuery query, Identifier userId) {
         try {
             return taskGateway
-                    .findAll(query)
+                    .findAll(query, userId)
                     .map(ListTaskOutput::with);
         } catch (Exception ex) {
             throw GatewayException.with(ex);

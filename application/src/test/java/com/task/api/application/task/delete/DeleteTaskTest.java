@@ -22,7 +22,6 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -48,11 +47,11 @@ public class DeleteTaskTest {
                 Date.now()
         );
 
-        when(gateway.findById(task.getId()))
+        when(gateway.findById(task.getId(), task.getUserId()))
                 .thenReturn(Optional.of(task));
 
         doNothing()
-                .when(gateway).delete(task.getId());
+                .when(gateway).delete(task.getId(), task.getUserId());
 
         var input = DeleteTaskInput.with(task.getId().getValue(), task.getUserId().getValue());
         useCase.execute(input);
@@ -60,6 +59,7 @@ public class DeleteTaskTest {
 
     @Test
     public void shouldThrowANotFoundExceptionTaskWhenUserIsNotTaskOwner() {
+        var userId = Identifier.unique();
         var task = Task.newTask(
                 Identifier.unique(),
                 Name.with("A Task"),
@@ -69,10 +69,10 @@ public class DeleteTaskTest {
                 Date.now()
         );
 
-        when(gateway.findById(task.getId()))
-                .thenReturn(Optional.of(task));
+        when(gateway.findById(task.getId(), userId))
+                .thenReturn(Optional.empty());
 
-        var input = DeleteTaskInput.with(task.getId().getValue(), Identifier.unique().getValue());
+        var input = DeleteTaskInput.with(task.getId().getValue(), userId.getValue());
         assertThatThrownBy(() -> useCase.execute(input))
                 .isInstanceOf(NotFoundException.class)
                 .satisfies(ex -> {
@@ -84,10 +84,11 @@ public class DeleteTaskTest {
     @Test
     public void shouldThrowANotFoundExceptionTaskWhenTaskDoesNotExist() {
         var taskId = Identifier.unique();
-        when(gateway.findById(taskId))
+        var userId = Identifier.unique();
+        when(gateway.findById(taskId, userId))
                 .thenReturn(Optional.empty());
 
-        var input = DeleteTaskInput.with(taskId.getValue(), Identifier.unique().getValue());
+        var input = DeleteTaskInput.with(taskId.getValue(), userId.getValue());
         assertThatThrownBy(() -> useCase.execute(input))
                 .isInstanceOf(NotFoundException.class)
                 .satisfies(ex -> {
@@ -99,10 +100,11 @@ public class DeleteTaskTest {
     @Test
     public void shouldThrowAGatewayExceptionWhenGatewayThrowsAnException() {
         var taskId = Identifier.unique();
+        var userId = Identifier.unique();
         doThrow(GatewayException.with(new RuntimeException("Internal error")))
-                .when(gateway).findById(any());
+                .when(gateway).findById(taskId, userId);
 
-        var input = DeleteTaskInput.with(taskId.getValue(), Identifier.unique().getValue());
+        var input = DeleteTaskInput.with(taskId.getValue(), userId.getValue());
         assertThatThrownBy(() -> useCase.execute(input))
                 .isInstanceOf(GatewayException.class)
                 .satisfies(ex -> {
