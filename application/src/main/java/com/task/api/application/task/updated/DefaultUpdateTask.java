@@ -23,9 +23,9 @@ public class DefaultUpdateTask extends UpdateTask {
     public Void execute(UpdateTaskInput input) {
         var taskId = buildIdentifier(input.taskId());
         var userId = buildIdentifier(input.userId());
-        var task = getTask(taskGateway, taskId);
-        validateTaskOwner(task, userId);
-        saveTask(taskGateway, updateTask(task, input));
+        var task = getTask(taskGateway, taskId, userId);
+        var updatedTask = updateTask(task, input);
+        saveTask(taskGateway, updatedTask);
         return null;
     }
 

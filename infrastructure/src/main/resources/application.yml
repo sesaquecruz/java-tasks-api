@@ -4,6 +4,12 @@ server:
     context-path: /api/v1
 
 spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${keycloak.host}/realms/${keycloak.realm}
+          jwk-set-uri: ${keycloak.host}/realms/${keycloak.realm}/protocol/openid-connect/certs
   datasource:
     url: jdbc:mysql://${mysql.url}
     username: ${mysql.username}

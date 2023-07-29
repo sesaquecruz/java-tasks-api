@@ -7,7 +7,7 @@ import java.util.Optional;
 
 public interface TaskGateway {
     Task save(Task task);
-    Optional<Task> findById(Identifier id);
-    Page<Task> findAll(TaskQuery query);
-    void delete(Identifier id);
+    Optional<Task> findById(Identifier taskId, Identifier userId);
+    Page<Task> findAll(TaskQuery query, Identifier userId);
+    void delete(Identifier taskId, Identifier userId);
 }

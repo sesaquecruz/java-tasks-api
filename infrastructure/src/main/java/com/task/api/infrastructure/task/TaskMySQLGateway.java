@@ -8,6 +8,7 @@ import com.task.api.domain.valueobjects.Identifier;
 import com.task.api.infrastructure.task.persistence.TaskJpaEntity;
 import com.task.api.infrastructure.task.persistence.TaskRepository;
 import com.task.api.infrastructure.utils.SpecificationUtils;
+import jakarta.transaction.Transactional;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
@@ -27,6 +28,7 @@ public class TaskMySQLGateway implements TaskGateway {
     }
 
     @Override
+    @Transactional
     public Task save(Task task) {
         return taskRepository
                 .saveAndFlush(TaskJpaEntity.from(task))
@@ -34,21 +36,23 @@ public class TaskMySQLGateway implements TaskGateway {
     }
 
     @Override
-    public Optional<Task> findById(final Identifier id) {
+    public Optional<Task> findById(Identifier taskId, Identifier userId) {
         return taskRepository
-                .findById(id.getValue())
+                .findByIdAndUserId(taskId.getValue(), userId.getValue())
                 .map(TaskJpaEntity::toAggregate);
     }
 
     @Override
-    public Page<Task> findAll(TaskQuery query) {
+    public Page<Task> findAll(TaskQuery query, Identifier userId) {
         var page = PageRequest.of(
                 query.getPage(),
                 query.getSize(),
                 Sort.by(Direction.fromString(query.getDirection()), query.getSort())
         );
 
-        var where = Optional.ofNullable(query.getTerm())
+        var equalsUserId = SpecificationUtils.<TaskJpaEntity>equal("userId", userId.getValue());
+
+        var containsTerm = Optional.ofNullable(query.getTerm())
                 .filter(term -> !term.isBlank())
                 .map(term -> SpecificationUtils
                         .<TaskJpaEntity>like("name", term)
@@ -58,7 +62,7 @@ public class TaskMySQLGateway implements TaskGateway {
                 )
                 .orElse(null);
 
-        var result = taskRepository.findAll(Specification.where(where), page);
+        var result = taskRepository.findAll(Specification.where(equalsUserId).and(containsTerm), page);
 
         return Page.with(
                 result.getNumber(),
@@ -69,7 +73,8 @@ public class TaskMySQLGateway implements TaskGateway {
     }
 
     @Override
-    public void delete(Identifier id) {
-        taskRepository.deleteById(id.getValue());
+    @Transactional
+    public void delete(Identifier taskId, Identifier userId) {
+        taskRepository.deleteByIdAndUserId(taskId.getValue(), userId.getValue());
     }
 }

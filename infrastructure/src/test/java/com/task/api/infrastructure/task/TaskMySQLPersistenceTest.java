@@ -90,7 +90,7 @@ public class TaskMySQLPersistenceTest {
         repository.saveAndFlush(TaskJpaEntity.from(task));
         assertThat(repository.count()).isEqualTo(1);
 
-        var savedTask = gateway.findById(task.getId()).get();
+        var savedTask = gateway.findById(task.getId(), task.getUserId()).get();
 
         assertThat(task).isEqualTo(savedTask);
         assertThat(task.getId()).isEqualTo(savedTask.getId());
@@ -106,20 +106,23 @@ public class TaskMySQLPersistenceTest {
 
     @Test
     public void shouldReturnEmptyWhenTaskDoesNotExists() {
-        var id = Identifier.unique();
+        var taskId = Identifier.unique();
+        var userId = Identifier.unique();
         assertThat(repository.count()).isEqualTo(0);
 
-        var savedTask = gateway.findById(id);
+        var savedTask = gateway.findById(taskId, userId);
         assertThat(savedTask.isEmpty()).isTrue();
     }
 
     @Test
     public void shouldReturnAllItemsWhenPageSizeIsGreaterThanTotal() {
         var tasks = saveTasks();
+        var userId = tasks.get(0).getUserId();
+
         tasks.sort(Comparator.comparing(t -> t.getName().getValue()));
 
         var query = TaskQuery.with(0, tasks.size(), null, "name", "asc");
-        var page = gateway.findAll(query);
+        var page = gateway.findAll(query, userId);
 
         assertThat(page.page()).isEqualTo(0);
         assertThat(page.size()).isEqualTo(tasks.size());
@@ -144,10 +147,12 @@ public class TaskMySQLPersistenceTest {
     @Test
     public void shouldReturnHalfItemsWhenPageSizeIsHalfOfTotal() {
         var tasks = saveTasks();
+        var userId = tasks.get(0).getUserId();
+
         tasks.sort(Comparator.comparing(t -> t.getName().getValue()));
 
         var query = TaskQuery.with(0, tasks.size()/2, null, "name", "asc");
-        var page = gateway.findAll(query);
+        var page = gateway.findAll(query, userId);
 
         assertThat(page.page()).isEqualTo(0);
         assertThat(page.size()).isEqualTo(tasks.size()/2);
@@ -172,13 +177,15 @@ public class TaskMySQLPersistenceTest {
     @Test
     public void shouldReturnLastHalfItemsWhenPageNumberIsOneAndPageSizeIsHalfOfTotal() {
         var list = saveTasks();
+        var userId = list.get(0).getUserId();
+
         var tasks = list.stream()
                 .sorted(Comparator.comparing(t -> t.getDueDate().getValue(), Comparator.reverseOrder()))
                 .skip(list.size() / 2)
                 .toList();
 
         var query = TaskQuery.with(1, list.size()/2, null, "dueDate", "desc");
-        var page = gateway.findAll(query);
+        var page = gateway.findAll(query, userId);
 
         assertThat(page.page()).isEqualTo(1);
         assertThat(page.size()).isEqualTo(list.size()/2);
@@ -203,6 +210,8 @@ public class TaskMySQLPersistenceTest {
     @Test
     public void shouldReturnItemsThatNameContainsAnSpecificTerm() {
         var list = saveTasks();
+        var userId = list.get(0).getUserId();
+
         var term = "One";
         var tasks = list.stream()
                 .sorted(Comparator.comparing(t -> t.getName().getValue()))
@@ -214,7 +223,7 @@ public class TaskMySQLPersistenceTest {
                 .toList();
 
         var query = TaskQuery.with(0, list.size(), term, "name", "asc");
-        var page = gateway.findAll(query);
+        var page = gateway.findAll(query, userId);
 
         assertThat(page.page()).isEqualTo(0);
         assertThat(page.size()).isEqualTo(tasks.size());
@@ -239,6 +248,8 @@ public class TaskMySQLPersistenceTest {
     @Test
     public void shouldReturnItemsThatDescriptionContainsAnSpecificTerm() {
         var list = saveTasks();
+        var userId = list.get(0).getUserId();
+
         var term = "Car";
         var tasks = list.stream()
                 .sorted(Comparator.comparing(t -> t.getDescription().getValue()))
@@ -250,7 +261,7 @@ public class TaskMySQLPersistenceTest {
                 .toList();
 
         var query = TaskQuery.with(0, list.size(), term, "name", "asc");
-        var page = gateway.findAll(query);
+        var page = gateway.findAll(query, userId);
 
         assertThat(page.page()).isEqualTo(0);
         assertThat(page.size()).isEqualTo(tasks.size());
@@ -275,6 +286,8 @@ public class TaskMySQLPersistenceTest {
     @Test
     public void shouldReturnItemsThatPriorityContainsAnSpecificTerm() {
         var list = saveTasks();
+        var userId = list.get(0).getUserId();
+
         var term = "HIGH";
         var tasks = list.stream()
                 .sorted(Comparator.comparing(t -> t.getPriority().getValue()))
@@ -286,7 +299,7 @@ public class TaskMySQLPersistenceTest {
                 .toList();
 
         var query = TaskQuery.with(0, list.size(), term, "name", "asc");
-        var page = gateway.findAll(query);
+        var page = gateway.findAll(query, userId);
 
         assertThat(page.page()).isEqualTo(0);
         assertThat(page.size()).isEqualTo(tasks.size());
@@ -311,6 +324,8 @@ public class TaskMySQLPersistenceTest {
     @Test
     public void shouldReturnItemsThatStatusContainsAnSpecificTerm() {
         var list = saveTasks();
+        var userId = list.get(0).getUserId();
+
         var term = "PENDING";
         var tasks = list.stream()
                 .sorted(Comparator.comparing(t -> t.getStatus().getValue()))
@@ -322,7 +337,7 @@ public class TaskMySQLPersistenceTest {
                 .toList();
 
         var query = TaskQuery.with(0, list.size(), term, "name", "asc");
-        var page = gateway.findAll(query);
+        var page = gateway.findAll(query, userId);
 
         assertThat(page.page()).isEqualTo(0);
         assertThat(page.size()).isEqualTo(tasks.size());
@@ -358,14 +373,15 @@ public class TaskMySQLPersistenceTest {
         gateway.save(task);
         assertThat(repository.count()).isEqualTo(1);
 
-        gateway.delete(task.getId());
+        gateway.delete(task.getId(), task.getUserId());
         assertThat(repository.count()).isEqualTo(0);
     }
 
     private List<Task> saveTasks() {
+        var userId = Identifier.unique();
         var tasks = new ArrayList<>(List.of(
                 Task.newTask(
-                        Identifier.unique(),
+                        userId,
                         Name.with("One"),
                         Description.with("Car"),
                         Priority.with("Low"),
@@ -373,7 +389,7 @@ public class TaskMySQLPersistenceTest {
                         Date.now()
                 ),
                 Task.newTask(
-                        Identifier.unique(),
+                        userId,
                         Name.with("Two"),
                         Description.with("Car"),
                         Priority.with("Normal"),
@@ -381,7 +397,7 @@ public class TaskMySQLPersistenceTest {
                         Date.now()
                 ),
                 Task.newTask(
-                        Identifier.unique(),
+                        userId,
                         Name.with("Three"),
                         Description.with("Bike"),
                         Priority.with("Normal"),
@@ -389,7 +405,7 @@ public class TaskMySQLPersistenceTest {
                         Date.now()
                 ),
                 Task.newTask(
-                        Identifier.unique(),
+                        userId,
                         Name.with("Four"),
                         Description.with("Skate"),
                         Priority.with("High"),
