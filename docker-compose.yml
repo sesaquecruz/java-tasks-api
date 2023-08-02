@@ -9,3 +9,18 @@ services:
       - MYSQL_DATABASE=tasks
     ports:
       - "3306:3306"
+
+  app:
+    container_name: app
+    depends_on:
+      - mysql
+    build: .
+    environment:
+      - SPRING_PROFILES_ACTIVE=production
+      - MYSQL_URL=mysql:3306/tasks
+      - MYSQL_USERNAME=root
+      - MYSQL_PASSWORD=root123
+      - JWT_ISSUER=https://dev-j6pmr0ckitt2062o.us.auth0.com/
+      - JWT_JWKS=https://dev-j6pmr0ckitt2062o.us.auth0.com/.well-known/jwks.json
+    ports:
+      - "8080:8080"

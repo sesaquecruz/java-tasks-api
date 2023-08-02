@@ -2,3 +2,7 @@ mysql:
   url: localhost:3306/tasks
   username: root
   password: root123
+
+jwt:
+  issuer: https://dev-j6pmr0ckitt2062o.us.auth0.com/
+  jwks: https://dev-j6pmr0ckitt2062o.us.auth0.com/.well-known/jwks.json
