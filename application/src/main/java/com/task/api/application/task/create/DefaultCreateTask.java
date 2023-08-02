@@ -8,8 +8,8 @@ import com.task.api.domain.task.valueobjects.Name;
 import com.task.api.domain.task.valueobjects.Priority;
 import com.task.api.domain.task.valueobjects.Status;
 import com.task.api.domain.validation.ErrorHandler;
+import com.task.api.domain.valueobjects.Auth0Identifier;
 import com.task.api.domain.valueobjects.Date;
-import com.task.api.domain.valueobjects.Identifier;
 
 import static com.task.api.application.utils.TaskUtils.saveTask;
 import static com.task.api.application.utils.ValidationUtils.catchErrors;
@@ -22,14 +22,15 @@ public class DefaultCreateTask extends CreateTask {
     @Override
     public CreateTaskOutput execute(CreateTaskInput input) {
         var task = buildTask(input);
-        return CreateTaskOutput.with(saveTask(taskGateway, task));
+        var savedTask = saveTask(taskGateway, task);
+        return CreateTaskOutput.with(savedTask);
     }
 
     public static Task buildTask(CreateTaskInput input) {
         var handler = ErrorHandler.create();
 
-        var userId = catchErrors(() -> Identifier.with(input.userId()), handler);
-        handler.changeCause("id", "user_id");
+        var userId = catchErrors(() -> Auth0Identifier.with(input.userId()), handler);
+        handler.changeCause("auth0_id", "user_id");
 
         var name = catchErrors(() -> Name.with(input.name()), handler);
         var description = catchErrors(() -> Description.with(input.description()), handler);

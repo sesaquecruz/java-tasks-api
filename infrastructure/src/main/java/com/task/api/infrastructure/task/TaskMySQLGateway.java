@@ -4,6 +4,7 @@ import com.task.api.domain.pagination.Page;
 import com.task.api.domain.task.Task;
 import com.task.api.domain.task.TaskGateway;
 import com.task.api.domain.task.TaskQuery;
+import com.task.api.domain.valueobjects.Auth0Identifier;
 import com.task.api.domain.valueobjects.Identifier;
 import com.task.api.infrastructure.task.persistence.TaskJpaEntity;
 import com.task.api.infrastructure.task.persistence.TaskRepository;
@@ -36,14 +37,14 @@ public class TaskMySQLGateway implements TaskGateway {
     }
 
     @Override
-    public Optional<Task> findById(Identifier taskId, Identifier userId) {
+    public Optional<Task> findById(Identifier taskId, Auth0Identifier userId) {
         return taskRepository
                 .findByIdAndUserId(taskId.getValue(), userId.getValue())
                 .map(TaskJpaEntity::toAggregate);
     }
 
     @Override
-    public Page<Task> findAll(TaskQuery query, Identifier userId) {
+    public Page<Task> findAll(TaskQuery query, Auth0Identifier userId) {
         var page = PageRequest.of(
                 query.getPage(),
                 query.getSize(),
@@ -74,7 +75,7 @@ public class TaskMySQLGateway implements TaskGateway {
 
     @Override
     @Transactional
-    public void delete(Identifier taskId, Identifier userId) {
+    public void delete(Identifier taskId, Auth0Identifier userId) {
         taskRepository.deleteByIdAndUserId(taskId.getValue(), userId.getValue());
     }
 }

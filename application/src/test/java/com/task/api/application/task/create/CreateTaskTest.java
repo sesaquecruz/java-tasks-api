@@ -4,6 +4,7 @@ import com.task.api.domain.exceptions.GatewayException;
 import com.task.api.domain.exceptions.ValidationException;
 import com.task.api.domain.task.TaskGateway;
 import com.task.api.domain.utils.TimeUtils;
+import com.task.api.domain.valueobjects.Auth0Identifier;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,7 +38,7 @@ class CreateTaskTest {
     @Test
     public void shouldCreateATaskWhenInputIsValid() {
         var input = CreateTaskInput.with(
-                UUID.randomUUID().toString(),
+                Auth0Identifier.unique().getValue(),
                 "A Name",
                 "A Description",
                 "Normal",
@@ -135,7 +136,7 @@ class CreateTaskTest {
     @Test
     public void shouldThrowAGatewayExceptionWhenGatewayThrowsAException() {
         var input = CreateTaskInput.with(
-                UUID.randomUUID().toString(),
+                Auth0Identifier.unique().getValue(),
                 "A Name",
                 "A Description",
                 "High",

@@ -7,6 +7,7 @@ import com.task.api.domain.task.valueobjects.Name;
 import com.task.api.domain.task.valueobjects.Priority;
 import com.task.api.domain.task.valueobjects.Status;
 import com.task.api.domain.utils.TimeUtils;
+import com.task.api.domain.valueobjects.Auth0Identifier;
 import com.task.api.domain.valueobjects.Date;
 import com.task.api.domain.valueobjects.Identifier;
 import com.task.api.infrastructure.PersistenceTest;
@@ -51,7 +52,7 @@ public class TaskMySQLPersistenceTest {
     @Test
     public void shouldSaveATask() {
         var task = Task.newTask(
-                Identifier.unique(),
+                Auth0Identifier.unique(),
                 Name.with("A Task"),
                 Description.with("A Description"),
                 Priority.with("High"),
@@ -79,7 +80,7 @@ public class TaskMySQLPersistenceTest {
     @Test
     public void shouldReturnATaskWhenItsExists() {
         var task = Task.newTask(
-                Identifier.unique(),
+                Auth0Identifier.unique(),
                 Name.with("A Task"),
                 Description.with("A Description"),
                 Priority.with("Low"),
@@ -107,7 +108,7 @@ public class TaskMySQLPersistenceTest {
     @Test
     public void shouldReturnEmptyWhenTaskDoesNotExists() {
         var taskId = Identifier.unique();
-        var userId = Identifier.unique();
+        var userId = Auth0Identifier.unique();
         assertThat(repository.count()).isEqualTo(0);
 
         var savedTask = gateway.findById(taskId, userId);
@@ -362,7 +363,7 @@ public class TaskMySQLPersistenceTest {
     @Test
     public void shouldDeleteATask() {
         var task = Task.newTask(
-                Identifier.unique(),
+                Auth0Identifier.unique(),
                 Name.with("A Task"),
                 Description.with("A Description"),
                 Priority.with("High"),
@@ -378,7 +379,7 @@ public class TaskMySQLPersistenceTest {
     }
 
     private List<Task> saveTasks() {
-        var userId = Identifier.unique();
+        var userId = Auth0Identifier.unique();
         var tasks = new ArrayList<>(List.of(
                 Task.newTask(
                         userId,

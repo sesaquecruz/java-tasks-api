@@ -5,6 +5,7 @@ import com.task.api.domain.task.valueobjects.Description;
 import com.task.api.domain.task.valueobjects.Name;
 import com.task.api.domain.task.valueobjects.Priority;
 import com.task.api.domain.task.valueobjects.Status;
+import com.task.api.domain.valueobjects.Auth0Identifier;
 import com.task.api.domain.valueobjects.Date;
 import com.task.api.domain.valueobjects.Identifier;
 import jakarta.persistence.*;
@@ -77,7 +78,7 @@ public class TaskJpaEntity {
     public Task toAggregate() {
         return Task.with(
                 Identifier.with(getId()),
-                Identifier.with(getUserId()),
+                Auth0Identifier.with(getUserId()),
                 Name.with(getName()),
                 Description.with(getDescription()),
                 Priority.with(getPriority().toString()),

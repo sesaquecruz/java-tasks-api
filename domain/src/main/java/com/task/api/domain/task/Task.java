@@ -6,11 +6,12 @@ import com.task.api.domain.task.valueobjects.Name;
 import com.task.api.domain.task.valueobjects.Priority;
 import com.task.api.domain.task.valueobjects.Status;
 import com.task.api.domain.utils.TimeUtils;
+import com.task.api.domain.valueobjects.Auth0Identifier;
 import com.task.api.domain.valueobjects.Date;
 import com.task.api.domain.valueobjects.Identifier;
 
 public class Task extends AggregateRoot {
-    private final Identifier userId;
+    private final Auth0Identifier userId;
     private Name name;
     private Description description;
     private Priority priority;
@@ -21,7 +22,7 @@ public class Task extends AggregateRoot {
 
     private Task(
             Identifier id,
-            Identifier userId,
+            Auth0Identifier userId,
             Name name,
             Description description,
             Priority priority,
@@ -42,7 +43,7 @@ public class Task extends AggregateRoot {
     }
 
     public static Task newTask(
-            Identifier userId,
+            Auth0Identifier userId,
             Name name,
             Description description,
             Priority priority,
@@ -69,7 +70,7 @@ public class Task extends AggregateRoot {
 
     public static Task with(
             Identifier id,
-            Identifier userId,
+            Auth0Identifier userId,
             Name name,
             Description description,
             Priority priority,
@@ -132,7 +133,7 @@ public class Task extends AggregateRoot {
         return this;
     }
 
-    public Identifier getUserId() {
+    public Auth0Identifier getUserId() {
         return userId;
     }
 

@@ -12,6 +12,7 @@ import com.task.api.domain.task.valueobjects.Name;
 import com.task.api.domain.task.valueobjects.Priority;
 import com.task.api.domain.task.valueobjects.Status;
 import com.task.api.domain.utils.TimeUtils;
+import com.task.api.domain.valueobjects.Auth0Identifier;
 import com.task.api.domain.valueobjects.Date;
 import com.task.api.domain.valueobjects.Identifier;
 import org.junit.jupiter.api.BeforeEach;
@@ -44,7 +45,7 @@ public class GetTaskTest {
     @Test
     public void shouldReturnATaskWhenIdExists() {
         var task = Task.newTask(
-                Identifier.unique(),
+                Auth0Identifier.unique(),
                 Name.with("A Task"),
                 Description.with("A Description"),
                 Priority.with("Normal"),
@@ -72,7 +73,7 @@ public class GetTaskTest {
     @Test
     public void shouldThrowANotFoundExceptionWhenIdDoesNotExist() {
         var taskId = Identifier.unique();
-        var userId = Identifier.unique();
+        var userId = Auth0Identifier.unique();
 
         when(gateway.findById(taskId, userId))
                 .thenReturn(Optional.empty());
@@ -115,7 +116,7 @@ public class GetTaskTest {
     @Test
     public void shouldThrowAGatewayExceptionWhenGatewayThrowsAnException() {
         var taskId = Identifier.unique();
-        var userId = Identifier.unique();
+        var userId = Auth0Identifier.unique();
 
         doThrow(GatewayException.with(new RuntimeException("Internal error")))
                 .when(gateway).findById(taskId, userId);

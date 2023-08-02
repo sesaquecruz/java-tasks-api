@@ -11,6 +11,7 @@ import com.task.api.domain.task.valueobjects.Description;
 import com.task.api.domain.task.valueobjects.Name;
 import com.task.api.domain.task.valueobjects.Priority;
 import com.task.api.domain.task.valueobjects.Status;
+import com.task.api.domain.valueobjects.Auth0Identifier;
 import com.task.api.domain.valueobjects.Date;
 import com.task.api.domain.valueobjects.Identifier;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,7 +46,7 @@ public class ListTaskTest {
 
     @Test
     public void shouldReturnAPageWithItemsWhenItemsExist() {
-        var userId = Identifier.unique();
+        var userId = Auth0Identifier.unique();
         var tasks = List.of(
                 Task.newTask(
                         userId,
@@ -104,7 +105,7 @@ public class ListTaskTest {
 
     @Test
     public void shouldReturnAEmptyPageWhenItemsDoNotExist() {
-        var userId = Identifier.unique();
+        var userId = Auth0Identifier.unique();
         var page = Page.with(0, 0, 0, new ArrayList<Task>());
 
         when(gateway.findAll(any(), eq(userId)))
@@ -129,7 +130,7 @@ public class ListTaskTest {
 
     @Test
     public void shouldThrowAQueryExceptionWhenInputIsInvalid() {
-        var userId = Identifier.unique();
+        var userId = Auth0Identifier.unique();
         var input = ListTaskInput.with(
                 userId.getValue(),
                 -1,
@@ -165,7 +166,7 @@ public class ListTaskTest {
 
     @Test
     public void shouldThrowAGatewayExceptionWhenGatewayThrowsAnException() {
-        var userId = Identifier.unique();
+        var userId = Auth0Identifier.unique();
 
         doThrow(GatewayException.with(new RuntimeException("Internal error")))
                 .when(gateway).findAll(any(), eq(userId));

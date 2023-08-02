@@ -5,7 +5,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.regex.Pattern;
 
 public final class TimeUtils {
-    private final static String timeFormat = "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{6}Z$";
+    private final static String timeFormat = "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{6})?Z$";
     private final static Pattern timePattern = Pattern.compile(timeFormat);
 
     private TimeUtils() { }

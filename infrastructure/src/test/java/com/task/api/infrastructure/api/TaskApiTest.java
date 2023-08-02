@@ -6,6 +6,7 @@ import com.task.api.domain.task.valueobjects.Name;
 import com.task.api.domain.task.valueobjects.Priority;
 import com.task.api.domain.task.valueobjects.Status;
 import com.task.api.domain.utils.TimeUtils;
+import com.task.api.domain.valueobjects.Auth0Identifier;
 import com.task.api.domain.valueobjects.Date;
 import com.task.api.domain.valueobjects.Identifier;
 import com.task.api.infrastructure.E2ETest;
@@ -168,7 +169,7 @@ public class TaskApiTest {
 
     @Test
     public void shouldReturnATaskWhenIdExists() {
-        var userId = Identifier.with(TestJwtConfig.SUB);
+        var userId = Auth0Identifier.with(TestJwtConfig.SUB);
         var task = Task.newTask(
                 userId,
                 Name.with("A Task"),
@@ -376,7 +377,7 @@ public class TaskApiTest {
 
     @Test
     public void shouldUpdateTaskWhenUserIsTaskOwner() throws JSONException {
-        var userId = Identifier.with(TestJwtConfig.SUB);
+        var userId = Auth0Identifier.with(TestJwtConfig.SUB);
         var task = Task.newTask(
                 userId,
                 Name.with("A Name"),
@@ -422,7 +423,7 @@ public class TaskApiTest {
     @Test
     public void shouldNotUpdateTaskAndReturnCode404WhenUserIsNotTaskOwner() throws JSONException {
         var task = Task.newTask(
-                Identifier.unique(),
+                Auth0Identifier.unique(),
                 Name.with("A Name"),
                 Description.with("A Description"),
                 Priority.with("NORMAL"),
@@ -465,7 +466,7 @@ public class TaskApiTest {
 
     @Test
     public void shouldDeleteTaskWhenUserIsTaskOwner() throws JSONException {
-        var userId = Identifier.with(TestJwtConfig.SUB);
+        var userId = Auth0Identifier.with(TestJwtConfig.SUB);
         var task = Task.newTask(
                 userId,
                 Name.with("A Name"),
@@ -496,7 +497,7 @@ public class TaskApiTest {
     @Test
     public void shouldNotDeleteTaskAndReturnCode404WhenUserIsNotTaskOwner() throws JSONException {
         var task = Task.newTask(
-                Identifier.unique(),
+                Auth0Identifier.unique(),
                 Name.with("A Name"),
                 Description.with("A Description"),
                 Priority.with("NORMAL"),
@@ -527,7 +528,7 @@ public class TaskApiTest {
         var userId = TestJwtConfig.SUB;
         var tasks = new ArrayList<>(List.of(
                 Task.newTask(
-                        Identifier.with(userId),
+                        Auth0Identifier.with(userId),
                         Name.with("One"),
                         Description.with("NORMAL"),
                         Priority.with("LOW"),
@@ -535,7 +536,7 @@ public class TaskApiTest {
                         Date.now()
                 ),
                 Task.newTask(
-                        Identifier.with(userId),
+                        Auth0Identifier.with(userId),
                         Name.with("Two"),
                         Description.with("Bike"),
                         Priority.with("NORMAL"),
@@ -543,7 +544,7 @@ public class TaskApiTest {
                         Date.now()
                 ),
                 Task.newTask(
-                        Identifier.with(userId),
+                        Auth0Identifier.with(userId),
                         Name.with("Three"),
                         Description.with("Bike"),
                         Priority.with("NORMAL"),
@@ -551,7 +552,7 @@ public class TaskApiTest {
                         Date.now()
                 ),
                 Task.newTask(
-                        Identifier.with(userId),
+                        Auth0Identifier.with(userId),
                         Name.with("Four"),
                         Description.with("Surf"),
                         Priority.with("HIGH"),
@@ -559,7 +560,7 @@ public class TaskApiTest {
                         Date.now()
                 ),
                 Task.newTask(
-                        Identifier.with(userId),
+                        Auth0Identifier.with(userId),
                         Name.with("Five"),
                         Description.with("Hike"),
                         Priority.with("HIGH"),

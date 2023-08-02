@@ -6,6 +6,7 @@ import com.task.api.domain.task.valueobjects.Name;
 import com.task.api.domain.task.valueobjects.Priority;
 import com.task.api.domain.task.valueobjects.Status;
 import com.task.api.domain.utils.TimeUtils;
+import com.task.api.domain.valueobjects.Auth0Identifier;
 import com.task.api.domain.valueobjects.Date;
 import com.task.api.domain.valueobjects.Identifier;
 import org.junit.jupiter.api.Test;
@@ -16,7 +17,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 public class TaskTest {
     @Test
     public void shouldCreateANewTaskWhenDataIsValid() {
-        var userId = Identifier.unique();
+        var userId = Auth0Identifier.unique();
         var name = Name.with("A name");
         var description = Description.with("A description");
         var priority = Priority.with("Normal");
@@ -39,7 +40,7 @@ public class TaskTest {
     @Test
     public void shouldCreateATaskWhenDataIsValid() {
         var id = Identifier.unique();
-        var userId = Identifier.unique();
+        var userId = Auth0Identifier.unique();
         var name = Name.with("A name");
         var description = Description.with("A description");
         var priority = Priority.with("Normal");
@@ -131,7 +132,7 @@ public class TaskTest {
 
         var task1 = Task.with(
                 id,
-                Identifier.unique(),
+                Auth0Identifier.unique(),
                 Name.with("A name"),
                 Description.with("A description"),
                 Priority.with("Normal"),
@@ -143,7 +144,7 @@ public class TaskTest {
 
         var task2 = Task.with(
                 id,
-                Identifier.unique(),
+                Auth0Identifier.unique(),
                 Name.with("Other name"),
                 Description.with("Other description"),
                 Priority.with("Low"),
@@ -159,7 +160,7 @@ public class TaskTest {
     @Test
     public void shouldUpdateTaskFields() {
         var task = Task.newTask(
-                Identifier.unique(),
+                Auth0Identifier.unique(),
                 Name.with("A Name"),
                 Description.with("A Description"),
                 Priority.with("LOW"),

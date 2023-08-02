@@ -1,7 +1,3 @@
-keycloak:
-  host: http://localhost:8081
-  realm: task
-
 mysql:
   url: localhost:3306/tasks
   username: root

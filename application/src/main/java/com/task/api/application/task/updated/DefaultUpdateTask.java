@@ -10,6 +10,7 @@ import com.task.api.domain.task.valueobjects.Status;
 import com.task.api.domain.validation.ErrorHandler;
 import com.task.api.domain.valueobjects.Date;
 
+import static com.task.api.application.utils.IdentifierUtils.buildAuth0Identifier;
 import static com.task.api.application.utils.IdentifierUtils.buildIdentifier;
 import static com.task.api.application.utils.TaskUtils.*;
 import static com.task.api.application.utils.ValidationUtils.catchErrors;
@@ -22,7 +23,7 @@ public class DefaultUpdateTask extends UpdateTask {
     @Override
     public Void execute(UpdateTaskInput input) {
         var taskId = buildIdentifier(input.taskId());
-        var userId = buildIdentifier(input.userId());
+        var userId = buildAuth0Identifier(input.userId());
         var task = getTask(taskGateway, taskId, userId);
         var updatedTask = updateTask(task, input);
         saveTask(taskGateway, updatedTask);

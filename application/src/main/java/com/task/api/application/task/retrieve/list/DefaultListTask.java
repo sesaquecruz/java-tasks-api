@@ -4,9 +4,9 @@ import com.task.api.domain.exceptions.GatewayException;
 import com.task.api.domain.pagination.Page;
 import com.task.api.domain.task.TaskGateway;
 import com.task.api.domain.task.TaskQuery;
-import com.task.api.domain.valueobjects.Identifier;
+import com.task.api.domain.valueobjects.Auth0Identifier;
 
-import static com.task.api.application.utils.IdentifierUtils.buildIdentifier;
+import static com.task.api.application.utils.IdentifierUtils.buildAuth0Identifier;
 
 public class DefaultListTask extends ListTask {
     public DefaultListTask(TaskGateway taskGateway) {
@@ -15,7 +15,7 @@ public class DefaultListTask extends ListTask {
 
     @Override
     public Page<ListTaskOutput> execute(ListTaskInput input) {
-        var userId = buildIdentifier(input.userId());
+        var userId = buildAuth0Identifier(input.userId());
         var query = buildQuery(input);
         return getPage(query, userId);
     }
@@ -30,7 +30,7 @@ public class DefaultListTask extends ListTask {
          );
     }
 
-    private Page<ListTaskOutput> getPage(TaskQuery query, Identifier userId) {
+    private Page<ListTaskOutput> getPage(TaskQuery query, Auth0Identifier userId) {
         try {
             return taskGateway
                     .findAll(query, userId)

@@ -1,6 +1,7 @@
 package com.task.api.domain.pagination;
 
 public abstract class Query {
+    private static final int MAX_PAGE_SIZE = 100;
     public static final String PAGE = "page";
     public static final String SIZE = "size";
     public static final String TERM = "term";
@@ -23,7 +24,7 @@ public abstract class Query {
             Direction direction
     ) {
         this.page = page;
-        this.size = size;
+        this.size = Math.min(size, MAX_PAGE_SIZE);
         this.term = term;
         this.sort = sort;
         this.direction = direction;

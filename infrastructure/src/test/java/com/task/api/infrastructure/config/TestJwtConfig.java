@@ -1,5 +1,6 @@
 package com.task.api.infrastructure.config;
 
+import com.task.api.domain.valueobjects.Auth0Identifier;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -14,7 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @TestConfiguration
 public class TestJwtConfig {
-    public static final String SUB = UUID.randomUUID().toString();
+    public static final String SUB = Auth0Identifier.unique().getValue();
     public static final String TOKEN = UUID.randomUUID().toString();
     private static final Jwt JWT = new Jwt(
             TOKEN,

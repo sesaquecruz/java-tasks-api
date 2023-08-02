@@ -4,6 +4,7 @@ import com.task.api.domain.exceptions.GatewayException;
 import com.task.api.domain.exceptions.NotFoundException;
 import com.task.api.domain.task.Task;
 import com.task.api.domain.task.TaskGateway;
+import com.task.api.domain.valueobjects.Auth0Identifier;
 import com.task.api.domain.valueobjects.Identifier;
 
 import java.util.Optional;
@@ -19,7 +20,7 @@ public final class TaskUtils {
         }
     }
 
-    public static Task getTask(TaskGateway gateway, Identifier taskId, Identifier userId) {
+    public static Task getTask(TaskGateway gateway, Identifier taskId, Auth0Identifier userId) {
         Optional<Task> task;
         try {
             task = gateway.findById(taskId, userId);

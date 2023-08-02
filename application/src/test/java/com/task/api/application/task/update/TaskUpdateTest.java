@@ -12,6 +12,7 @@ import com.task.api.domain.task.valueobjects.Name;
 import com.task.api.domain.task.valueobjects.Priority;
 import com.task.api.domain.task.valueobjects.Status;
 import com.task.api.domain.utils.TimeUtils;
+import com.task.api.domain.valueobjects.Auth0Identifier;
 import com.task.api.domain.valueobjects.Date;
 import com.task.api.domain.valueobjects.Identifier;
 import org.assertj.core.api.Assertions;
@@ -48,7 +49,7 @@ public class TaskUpdateTest {
     @Test
     public void shouldUpdateTaskWhenDataIsValid() {
         var task = Task.newTask(
-                Identifier.unique(),
+                Auth0Identifier.unique(),
                 Name.with("A Task"),
                 Description.with("A Description"),
                 Priority.with("NORMAL"),
@@ -106,9 +107,9 @@ public class TaskUpdateTest {
 
     @Test
     public void shouldThrowANotFoundExceptionWhenUserIsNotTaskOwner() {
-        var userId = Identifier.unique();
+        var userId = Auth0Identifier.unique();
         var task = Task.newTask(
-                Identifier.unique(),
+                Auth0Identifier.unique(),
                 Name.with("A Task"),
                 Description.with("A Description"),
                 Priority.with("NORMAL"),
@@ -140,7 +141,7 @@ public class TaskUpdateTest {
     @Test
     public void shouldThrowAGatewayExceptionWhenGatewayThrowsAnException() {
         var taskId = Identifier.unique();
-        var userId = Identifier.unique();
+        var userId = Auth0Identifier.unique();
 
         doThrow(GatewayException.with(new RuntimeException("Internal error")))
                 .when(gateway).findById(taskId, userId);
