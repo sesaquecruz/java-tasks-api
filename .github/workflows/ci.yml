@@ -3,9 +3,12 @@ name: CI Pipeline
 on:
   push:
     branches:
-      - 'feature/**'
+      - 'main'
+      - 'hotfix/**'
       - 'develop'
+      - 'feature/**'
       - 'bugfix/**'
+      - 'release/**'
   workflow_dispatch:
 
 jobs:

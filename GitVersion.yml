@@ -29,14 +29,14 @@ branches:
     increment: None
     prevent-increment-of-merged-branch-version: true
     source-branches: [ 'develop' ]
-  release:
-    regex: ^release/
-    mode: ContinuousDelivery
-    increment: None
-    source-branches: [ 'develop' ]
   bugfix:
     regex: ^bugfix/
     mode: ContinuousDelivery
     increment: None
     prevent-increment-of-merged-branch-version: true
     source-branches: [ 'develop', 'release' ]
+  release:
+    regex: ^release/
+    mode: ContinuousDelivery
+    increment: None
+    source-branches: [ 'develop' ]
