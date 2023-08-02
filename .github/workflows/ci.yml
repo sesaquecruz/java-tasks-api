@@ -27,6 +27,7 @@ jobs:
         run: ./gradlew test
   version:
     name: Version Runner
+    needs: test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
