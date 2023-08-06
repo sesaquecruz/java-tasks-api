@@ -28,7 +28,7 @@ This service is deployed on Google Cloud Run and its API's documentation can be 
 
 The frontend for this service is implemented using React and can be found in: [Task App Repository](https://github.com/sesaquecruz/react-tasks-app/)
 
-It is also deployed on Vercel and can be accessed by visiting: [Task App](https://react-tasks-app-sable.vercel.app/)
+It is deployed on Vercel and can be accessed by visiting: [Task App](https://react-tasks-app-sable.vercel.app/)
 
 ## Contributing
 
