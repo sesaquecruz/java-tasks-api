@@ -1,4 +1,4 @@
-version: '3.9'
+version: '3.8'
 
 services:
   mysql:
@@ -9,11 +9,30 @@ services:
       - MYSQL_DATABASE=tasks
     ports:
       - "3306:3306"
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      timeout: 5s
+      retries: 12
+
+  flyway:
+    container_name: flyway
+    depends_on:
+      mysql:
+        condition: service_healthy
+    image: flyway/flyway:9-alpine
+    volumes:
+      - ./infrastructure/src/main/resources/db/migration:/flyway/sql:ro
+    environment:
+      - FLYWAY_URL=jdbc:mysql://mysql:3306/tasks?allowPublicKeyRetrieval=true
+      - FLYWAY_USER=root
+      - FLYWAY_PASSWORD=root123
+    command: [ "migrate" ]
 
   app:
     container_name: app
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy
     build: .
     environment:
       - SPRING_PROFILES_ACTIVE=production

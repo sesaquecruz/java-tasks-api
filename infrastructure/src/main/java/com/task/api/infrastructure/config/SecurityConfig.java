@@ -24,6 +24,7 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> {
+                    auth.requestMatchers("/actuator/**").permitAll();
                     auth.requestMatchers("/swagger-ui/**").permitAll();
                     auth.requestMatchers("/v3/api-docs/**").permitAll();
                     auth.requestMatchers("/tasks*").authenticated();
