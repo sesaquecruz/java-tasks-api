@@ -1,6 +1,6 @@
-# Task Manager API
+# Tasks API
 
-This is a task management service that provides secure endpoints for creating, finding, updating, and deleting tasks. It also has features such as finding tasks using pagination, sorting, and searching based on terms.
+This is a Rest API that provides secure endpoints for creating, finding, updating, and deleting tasks. It also allows finding tasks using pagination, sorting, and searching based on terms.
 
 ## Endpoints
 
@@ -11,11 +11,21 @@ This is a task management service that provides secure endpoints for creating, f
 | `/api/v1/tasks`       | GET    | YES       | Search tasks        |
 | `/api/v1/tasks`       | PUT    | YES       | Update a task       |
 | `/api/v1/tasks`       | DELETE | YES       | Delete a task       |
-| `/api/v1/swagger-ui/` | GET    | NO        | API's Documentation |
+| `/api/v1/swagger-ui/` | GET    | NO        | API's documentation |
+| `/api/v1/actuator/`   | GET    | NO        | Health check        |
 
 ## Documentation
 
-This service is deployed on Google Cloud Run and its API's documentation can be explored in: [Task API's Doc](https://java-tasks-api-xvtdhw3sfq-uc.a.run.app/api/v1/swagger-ui/index.html)
+The API is running in a Kubernetes cluster using GKE on GCP. Check out the documentation on:
+
+- [Tasks API](https://git.tasks.api.sesaque.com/api/v1/swagger-ui/index.html)
+
+Other related repositories are:
+
+- [Tasks App](https://github.com/sesaquecruz/react-tasks-app)
+- [Tasks Infra](https://github.com/sesaquecruz/k8s-tasks-infra)
+- [Tasks Docker Hub](https://hub.docker.com/r/sesaquecruz/java-tasks-api/tags)
+
 
 ## Tech Stack
 
@@ -23,12 +33,6 @@ This service is deployed on Google Cloud Run and its API's documentation can be 
 - [Spring Boot](https://spring.io/projects/spring-boot/)
 - [Spring Security](https://spring.io/projects/spring-security)
 - [MySQL](https://www.mysql.com/)
-
-## Frontend Repository
-
-The frontend for this service is implemented using React and can be found in: [Task App Repository](https://github.com/sesaquecruz/react-tasks-app/)
-
-It is deployed on Vercel and can be accessed by visiting: [Task App](https://react-tasks-app-sable.vercel.app/)
 
 ## Contributing
 
