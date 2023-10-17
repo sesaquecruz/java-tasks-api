@@ -14,13 +14,7 @@ This is a Rest API that provides secure endpoints for creating, finding, updatin
 | `/api/v1/swagger-ui/` | GET    | NO        | API's documentation |
 | `/api/v1/actuator/`   | GET    | NO        | Health check        |
 
-## Documentation
-
-The API is running in a Kubernetes cluster using GKE on GCP. Check out the documentation on:
-
-- [Tasks API](https://git.tasks.api.sesaque.com/api/v1/swagger-ui/index.html)
-
-Other related repositories are:
+## Related repositories
 
 - [Tasks App](https://github.com/sesaquecruz/react-tasks-app)
 - [Tasks Infra](https://github.com/sesaquecruz/k8s-tasks-infra)
